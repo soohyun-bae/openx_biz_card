@@ -23,7 +23,7 @@ import type {
   OpenxEditablePart,
 } from "./businessCardTypes";
 
-type OpenxFontStyleKey = "name" | "role" | "company" | "contact" | "website";
+type OpenxFontStyleKey = "name" | "role" | "contact" | "website";
 type EditorStep = "select" | "edit";
 
 export default function Preview() {
@@ -62,7 +62,6 @@ export default function Preview() {
     canvas.style.height = `${previewHeight}px`;
     void drawCard(
       context,
-      "openx",
       previewData,
       (previewWidth / cardSize.width) * ratio,
       {
@@ -122,7 +121,7 @@ export default function Preview() {
 
     canvas.width = cardSize.width * exportScale;
     canvas.height = cardSize.height * exportScale;
-    await drawCard(context, "openx", data, exportScale, {
+    await drawCard(context, data, exportScale, {
       openx: openxStyle,
       content: visibility,
       logoPreset: selectedLogoPreset,

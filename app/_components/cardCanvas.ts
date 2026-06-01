@@ -11,40 +11,6 @@ import type {
   OpenxCardStyle,
 } from "./businessCardTypes";
 
-const fitText = (
-  context: CanvasRenderingContext2D,
-  text: string,
-  x: number,
-  y: number,
-  maxWidth: number,
-  lineHeight: number,
-  letterSpacing = 0,
-) => {
-  const words = text.split(" ");
-  const lines: string[] = [];
-  let line = "";
-
-  words.forEach((word) => {
-    const nextLine = line ? `${line} ${word}` : word;
-
-    if (measureText(context, nextLine, letterSpacing) > maxWidth && line) {
-      lines.push(line);
-      line = word;
-      return;
-    }
-
-    line = nextLine;
-  });
-
-  if (line) {
-    lines.push(line);
-  }
-
-  lines.slice(0, 2).forEach((textLine, index) => {
-    drawText(context, textLine, x, y + index * lineHeight, letterSpacing);
-  });
-};
-
 const setFont = (
   context: CanvasRenderingContext2D,
   size: number,
@@ -99,21 +65,6 @@ const drawText = (
     cursorX += context.measureText(character).width + letterSpacing;
   });
   context.textAlign = align;
-};
-
-const drawContact = (
-  context: CanvasRenderingContext2D,
-  data: CardData,
-  x: number,
-  y: number,
-  color: string,
-  align: CanvasTextAlign = "left",
-) => {
-  context.textAlign = align;
-  context.fillStyle = color;
-  setFont(context, 28, 500);
-  context.fillText(data.phone, x, y);
-  context.fillText(data.email, x, y + 44);
 };
 
 const drawStyledText = (
@@ -229,68 +180,6 @@ const drawLogoBox = (
   context.restore();
 };
 
-const drawLogoCircle = (
-  context: CanvasRenderingContext2D,
-  image: HTMLImageElement | null,
-  fallbackText: string,
-  x: number,
-  y: number,
-  size: number,
-  background: string,
-  color: string,
-) => {
-  context.save();
-
-  if (image) {
-    drawImageNatural(context, image, x + size / 2, y + size / 2, size, size);
-  } else {
-    context.beginPath();
-    context.arc(x + size / 2, y + size / 2, size / 2, 0, Math.PI * 2);
-    context.fillStyle = background;
-    context.fill();
-    drawLogoText(context, fallbackText, x, y, size, size, color);
-  }
-
-  context.restore();
-};
-
-const drawLogoDiamond = (
-  context: CanvasRenderingContext2D,
-  image: HTMLImageElement | null,
-  fallbackText: string,
-  centerX: number,
-  centerY: number,
-  size: number,
-  background: string,
-  color: string,
-) => {
-  context.save();
-
-  if (image) {
-    drawImageNatural(context, image, centerX, centerY, size, size);
-  } else {
-    context.beginPath();
-    context.moveTo(centerX, centerY - size / 2);
-    context.lineTo(centerX + size / 2, centerY);
-    context.lineTo(centerX, centerY + size / 2);
-    context.lineTo(centerX - size / 2, centerY);
-    context.closePath();
-    context.fillStyle = background;
-    context.fill();
-    drawLogoText(
-      context,
-      fallbackText,
-      centerX - size / 2,
-      centerY - size / 2,
-      size,
-      size,
-      color,
-    );
-  }
-
-  context.restore();
-};
-
 const mergeOpenxStyle = (
   style?: Partial<OpenxCardStyle>,
 ): OpenxCardStyle => ({
@@ -303,10 +192,6 @@ const mergeOpenxStyle = (
   role: {
     ...openxDefaultStyle.role,
     ...style?.role,
-  },
-  company: {
-    ...openxDefaultStyle.company,
-    ...style?.company,
   },
   contact: {
     ...openxDefaultStyle.contact,
@@ -338,7 +223,6 @@ const drawOpenxBorder = (
 const drawOpenxLogo = (
   context: CanvasRenderingContext2D,
   logo: HTMLImageElement | null,
-  data: CardData,
   style: OpenxCardStyle,
   logoPreset: LogoPresetId,
 ) => {
@@ -349,7 +233,7 @@ const drawOpenxLogo = (
     drawLogoBox(
       context,
       logo,
-      data.company,
+      "OPENX",
       x,
       y,
       style.logoSize,
@@ -374,7 +258,15 @@ const drawOpenxLogo = (
 
   if (logoPreset === "square") {
     context.fillRect(x, y, style.logoSize, style.logoSize);
-    drawLogoText(context, "OX", x, y, style.logoSize, style.logoSize, style.logoColor);
+    drawLogoText(
+      context,
+      "OX",
+      x,
+      y,
+      style.logoSize,
+      style.logoSize,
+      style.logoColor,
+    );
     context.restore();
     return;
   }
@@ -412,7 +304,15 @@ const drawOpenxProfile = (
     style.primaryColor,
     style.name,
   );
-  drawVisibleText(context, visibility.role, data.role, 288, 238, style.primaryColor, style.role);
+  drawVisibleText(
+    context,
+    visibility.role,
+    data.role,
+    288,
+    238,
+    style.primaryColor,
+    style.role,
+  );
 };
 
 const drawOpenxContact = (
@@ -503,7 +403,7 @@ const drawOpenxTemplate = (
   drawOpenxBackground(context, style);
   drawOpenxBorder(context, style);
   if (visibility.logo) {
-    drawOpenxLogo(context, logo, data, style, logoPreset);
+    drawOpenxLogo(context, logo, style, logoPreset);
   }
   drawOpenxSponsor(context, style, visibility);
   drawOpenxProfile(context, data, style, visibility);
@@ -512,7 +412,6 @@ const drawOpenxTemplate = (
 
 export const drawCard = async (
   context: CanvasRenderingContext2D,
-  templateId: string,
   data: CardData,
   scale = 1,
   styles?: {
@@ -521,135 +420,22 @@ export const drawCard = async (
     logoPreset?: LogoPresetId;
   },
 ) => {
-  const logo = styles?.logoPreset === "custom" ? await loadLogo(data.logo) : null;
+  const logo =
+    styles?.logoPreset === "custom" ? await loadLogo(data.logo) : null;
 
   context.save();
   context.scale(scale, scale);
   context.clearRect(0, 0, cardSize.width, cardSize.height);
   context.textBaseline = "alphabetic";
 
-  if (templateId === "openx") {
-    drawOpenxTemplate(
-      context,
-      logo,
-      data,
-      styles?.openx,
-      styles?.content,
-      styles?.logoPreset,
-    );
-  }
-
-  if (templateId === "bold") {
-    context.fillStyle = "#111827";
-    context.fillRect(0, 0, cardSize.width, cardSize.height);
-    context.fillStyle = "#f97316";
-    context.fillRect(0, 0, 350, 600);
-    drawLogoCircle(
-      context,
-      logo,
-      data.company,
-      89,
-      149,
-      172,
-      "#111827",
-      "#ffffff",
-    );
-    context.textAlign = "left";
-    setFont(context, 74, 800);
-    fitText(context, data.name, 430, 196, 520, 72, 2);
-    setFont(context, 31, 600);
-    context.fillText(data.role, 434, 300);
-    drawContact(context, data, 434, 426, "#e5e7eb");
-    setFont(context, 24, 500);
-    context.fillText(data.address, 434, 516);
-  }
-
-  if (templateId === "editorial") {
-    context.fillStyle = "#f8f5ef";
-    context.fillRect(0, 0, cardSize.width, cardSize.height);
-    context.fillStyle = "#262626";
-    context.fillRect(72, 72, 162, 456);
-    drawLogoBox(
-      context,
-      logo,
-      data.company,
-      105,
-      104,
-      96,
-      "#f8f5ef",
-      "#262626",
-    );
-    context.save();
-    context.translate(155, 495);
-    context.rotate(-Math.PI / 2);
-    context.fillStyle = "#f8f5ef";
-    setFont(context, 46, 800);
-    context.fillText(data.company, 0, 0);
-    context.restore();
-    context.fillStyle = "#262626";
-    setFont(context, 78, 800);
-    fitText(context, data.name, 300, 190, 600, 80, 3);
-    setFont(context, 30, 500);
-    fitText(context, data.slogan, 304, 296, 560, 40);
-    drawContact(context, data, 304, 432, "#44403c");
-    setFont(context, 26, 700);
-    context.fillText(data.website, 304, 524);
-  }
-
-  if (templateId === "tech") {
-    context.fillStyle = "#f8fafc";
-    context.fillRect(0, 0, cardSize.width, cardSize.height);
-    context.strokeStyle = "#d1d5db";
-    context.lineWidth = 2;
-    for (let x = 0; x <= cardSize.width; x += 75) {
-      context.beginPath();
-      context.moveTo(x, 0);
-      context.lineTo(x, cardSize.height);
-      context.stroke();
-    }
-    for (let y = 0; y <= cardSize.height; y += 75) {
-      context.beginPath();
-      context.moveTo(0, y);
-      context.lineTo(cardSize.width, y);
-      context.stroke();
-    }
-    drawLogoBox(context, logo, data.company, 72, 80, 122, "#14b8a6", "#0f172a");
-    context.fillStyle = "#0f172a";
-    setFont(context, 76, 800);
-    fitText(context, data.name, 72, 342, 610, 78, 2);
-    setFont(context, 31, 600);
-    context.fillText(`${data.role} / ${data.company}`, 76, 410);
-    drawContact(context, data, 730, 386, "#0f172a");
-    setFont(context, 26, 700);
-    context.fillText(data.website, 730, 474);
-  }
-
-  if (templateId === "premium") {
-    context.fillStyle = "#f7f2e8";
-    context.fillRect(0, 0, cardSize.width, cardSize.height);
-    drawLogoDiamond(
-      context,
-      logo,
-      data.company,
-      525,
-      160,
-      172,
-      "#1f2937",
-      "#ffffff",
-    );
-    context.strokeStyle = "#a16207";
-    context.lineWidth = 4;
-    context.strokeRect(44, 44, 962, 512);
-    context.textAlign = "center";
-    context.fillStyle = "#1f2937";
-    const nameLetterSpacing = setFont(context, 68, 800, 10);
-    drawText(context, data.name, 525, 350, nameLetterSpacing);
-    setFont(context, 30, 500);
-    context.fillText(`${data.role} at ${data.company}`, 525, 404);
-    drawContact(context, data, 525, 490, "#374151", "center");
-    setFont(context, 22, 500);
-    context.fillText(data.address, 525, 552);
-  }
+  drawOpenxTemplate(
+    context,
+    logo,
+    data,
+    styles?.openx,
+    styles?.content,
+    styles?.logoPreset,
+  );
 
   context.restore();
 };

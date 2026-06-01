@@ -18,7 +18,7 @@ type OpenxStyleFormProps = {
   ) => void;
 };
 
-type FontStyleKey = "name" | "role" | "company" | "contact" | "website";
+type FontStyleKey = "name" | "role" | "contact" | "website";
 
 type NumberInputProps = {
   label: string;

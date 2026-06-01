@@ -2,13 +2,11 @@ export type FieldKey =
   | "logo"
   | "name"
   | "role"
-  | "company"
   | "phone"
   | "fax"
   | "email"
   | "website"
-  | "address"
-  | "slogan";
+  | "address";
 
 export type CardData = Record<FieldKey, string>;
 
@@ -49,13 +47,8 @@ export type OpenxCardStyle = {
   secondaryColor: string;
   name: FontStyle;
   role: FontStyle;
-  company: FontStyle;
   contact: FontStyle;
   website: FontStyle;
-};
-
-export type TemplateStyles = {
-  openx: OpenxCardStyle;
 };
 
 export type OpenxEditablePart =
@@ -67,10 +60,3 @@ export type OpenxEditablePart =
   | "role"
   | "contact"
   | "website";
-
-export type Template = {
-  id: string;
-  name: string;
-  description: string;
-  fields: FieldKey[];
-};
