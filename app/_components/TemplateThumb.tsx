@@ -1,7 +1,7 @@
 export const TemplateThumb = ({ templateId }: { templateId: string }) => {
   const sharedClass = "h-[54px] w-[92px] overflow-hidden rounded border";
 
-  if (templateId === "minimal") {
+  if (templateId === "openx") {
     return (
       <span className={`${sharedClass} border-slate-300 bg-zinc-50 p-2`}>
         <span className="block h-full border border-slate-900 p-1">
