@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState, type RefObject } from "react";
-import { cardSize } from "./businessCardData";
+import {
+  cardContentMargin,
+  cardSize,
+  openxDefaultStyle,
+} from "./businessCardData";
 import type {
   CardContentVisibility,
   CardData,
@@ -46,29 +50,42 @@ type HotspotValueRow = {
   skipHotspot?: boolean;
 };
 
+const openxLogoSize = {
+  width: 196,
+  height: 57,
+};
+
+const logoNameGap = 45;
+const addressAwardGap = 27;
+const awardStripHeight = 60;
+
 const profileLayout = {
-  nameX: 72,
-  baselineY: 210,
-  roleGap: 36,
+  nameX: cardContentMargin,
+  baselineY:
+    cardContentMargin +
+    openxLogoSize.height +
+    logoNameGap +
+    openxDefaultStyle.name.size,
+  roleGap: 29,
 };
 
 const contactLayout = {
-  labelX: 72,
-  valueX: 132,
-  addressX: 72,
-  addressBaselineY: 502,
-  rowGap: 38,
+  labelX: cardContentMargin,
+  valueX: cardContentMargin + 40,
+  addressX: cardContentMargin,
+  addressBaselineY: cardSize.height - awardStripHeight - addressAwardGap,
+  rowGap: 42,
 };
 
 const kcstProfileLayout = {
-  rightX: 980,
-  baselineY: 250,
-  gap: 30,
+  rightX: cardSize.width - cardContentMargin,
+  baselineY: 180,
+  gap: 28,
 };
 
 const kcstContactLayout = {
-  valueX: 118,
-  addressOffsetY: 20,
+  valueX: cardContentMargin + 46,
+  addressOffsetY: 18,
 };
 
 const estimateTextWidth = (

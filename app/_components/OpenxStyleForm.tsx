@@ -12,6 +12,7 @@ type OpenxStyleFormProps = {
     fontKey: keyof FontStyle,
     value: number,
   ) => void;
+  onResetFont: (key: FontStyleKey) => void;
 };
 
 type FontStyleKey = OpenxEditablePart;
@@ -99,6 +100,7 @@ export const OpenxStyleForm = ({
   style,
   selectedPart,
   onUpdateFont,
+  onResetFont,
 }: OpenxStyleFormProps) => {
   const renderControls = () => {
     return (
@@ -126,7 +128,18 @@ export const OpenxStyleForm = ({
           {partLabels[selectedPart]}
         </span>
       </div>
-      {controls ? <div className="mt-4 grid gap-3">{controls}</div> : null}
+      {controls ? (
+        <div className="mt-4 grid gap-3">
+          {controls}
+          <button
+            type="button"
+            onClick={() => onResetFont(selectedPart)}
+            className="h-11 rounded-md border border-slate-300 px-4 text-sm font-bold text-slate-700 transition hover:border-main hover:text-main"
+          >
+            기본값으로 돌아가기
+          </button>
+        </div>
+      ) : null}
     </div>
   );
 };

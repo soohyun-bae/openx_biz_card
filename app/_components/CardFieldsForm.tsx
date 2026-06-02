@@ -24,6 +24,7 @@ type CardFieldsFormProps = {
     fontKey: keyof FontStyle,
     value: number,
   ) => void;
+  onResetFont: (key: OpenxFontStyleKey) => void;
   onBackToContentSelect: () => void;
 };
 
@@ -47,6 +48,7 @@ export const CardFieldsForm = ({
   selectedOpenxPart,
   onUpdateField,
   onUpdateFont,
+  onResetFont,
   onBackToContentSelect,
 }: CardFieldsFormProps) => {
   const updateLogo = (file: File | undefined) => {
@@ -100,6 +102,7 @@ export const CardFieldsForm = ({
           style={style}
           selectedPart={selectedOpenxPart}
           onUpdateFont={onUpdateFont}
+          onResetFont={onResetFont}
         />
       </div>
       <button

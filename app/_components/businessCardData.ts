@@ -9,9 +9,11 @@ import type {
 } from "./businessCardTypes";
 
 export const cardSize = {
-  width: 1050,
-  height: 600,
+  width: 850,
+  height: 550,
 };
+
+export const cardContentMargin = 60;
 
 export const fieldLabels: Record<FieldKey, string> = {
   logo: "로고",
@@ -30,22 +32,22 @@ export const initialData: CardData = {
   role: "Brand Designer",
   phone: "010-1234-5678",
   fax: "02-1234-5678",
-  email: "hello@openx.kr",
-  website: "openx.kr",
+  email: "hello@openxgroup.co.kr",
+  website: "www.openxgroup.co.kr",
   address: "서울시 마포구 성암로330, DMC첨단산업센터 B동 808호",
 };
 
 export const openxDefaultStyle: OpenxCardStyle = {
   backgroundColor: "#fafafa",
-  logoSize: 240,
+  logoSize: 194,
   logoBackground: "#111827",
   logoColor: "#ffffff",
   primaryColor: "#111827",
   secondaryColor: "#111827",
   name: {
-    size: 40,
+    size: 42,
     weight: 700,
-    letterSpacing: 14,
+    letterSpacing: 20,
   },
   role: {
     size: 30,

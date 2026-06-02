@@ -1,4 +1,5 @@
 import {
+  cardContentMargin,
   cardSize,
   initialContentVisibility,
   logoPresets,
@@ -105,28 +106,40 @@ const drawVisibleText = (
   drawStyledText(context, text, x, y, color, font);
 };
 
+const openxLogoSize = {
+  width: 196,
+  height: 57,
+};
+
+const logoNameGap = 45;
+const addressAwardGap = 27;
+const awardStripHeight = 60;
+
 const profileLayout = {
-  nameX: 72,
-  baselineY: 210,
-  roleGap: 36,
+  nameX: cardContentMargin,
+  baselineY:
+    cardContentMargin +
+    openxLogoSize.height +
+    logoNameGap +
+    openxDefaultStyle.name.size,
+  roleGap: 29,
 };
 
 const kcstProfileLayout = {
-  rightX: 980,
-  baselineY: 250,
-  gap: 30,
+  rightX: cardSize.width - cardContentMargin,
+  baselineY: 180,
+  gap: 28,
 };
 
 const contactLayout = {
-  labelX: 72,
-  markX: 104,
-  valueX: 132,
-  addressBaselineY: 502,
-  rowGap: 38,
+  labelX: cardContentMargin,
+  valueX: cardContentMargin + 40,
+  addressBaselineY: cardSize.height - awardStripHeight - addressAwardGap,
+  rowGap: 42,
 };
 
 const kcstContactLayout = {
-  addressOffsetY: 20,
+  addressOffsetY: 18,
 };
 
 const loadLogo = (src: string) =>
@@ -209,6 +222,23 @@ const drawLogoBox = (
     drawLogoText(context, fallbackText, x, y, size, size, color);
   }
 
+  context.restore();
+};
+
+const drawCustomLogoUploadGuide = (
+  context: CanvasRenderingContext2D,
+  style: OpenxCardStyle,
+) => {
+  context.save();
+  context.fillStyle = style.primaryColor;
+  context.textAlign = "left";
+  setFont(context, 24, 700, 0);
+  drawText(
+    context,
+    "이미지를 첨부해주세요.",
+    cardContentMargin,
+    cardContentMargin + 24,
+  );
   context.restore();
 };
 
@@ -295,9 +325,14 @@ const drawOpenxLogo = (
   style: OpenxCardStyle,
   logoPreset: LogoPresetId,
 ) => {
-  const x = 72;
-  const y = -20;
+  const x = cardContentMargin;
+  const y = logoPreset === "openx" ? cardContentMargin : -18;
   const logoSize = style.logoSize;
+
+  if (logoPreset === "openx" && logo) {
+    context.drawImage(logo, x, y, openxLogoSize.width, openxLogoSize.height);
+    return;
+  }
 
   if (logo) {
     drawLogoBox(
@@ -314,16 +349,7 @@ const drawOpenxLogo = (
   }
 
   if (logoPreset === "custom") {
-    drawLogoBox(
-      context,
-      null,
-      "OPENX",
-      x,
-      y,
-      style.logoSize,
-      style.logoBackground,
-      style.logoColor,
-    );
+    drawCustomLogoUploadGuide(context, style);
     return;
   }
 
@@ -369,8 +395,8 @@ const drawKcstLogo = (
   logo: HTMLImageElement | null,
   style: OpenxCardStyle,
 ) => {
-  const x = 65;
-  const y = -130;
+  const x = cardContentMargin;
+  const y = -119;
   const logoSize = style.logoSize * 2;
 
   context.save();
@@ -500,7 +526,6 @@ const drawOpenxContact = (
   style: OpenxCardStyle,
   visibility: CardContentVisibility,
 ) => {
-  const markColor = "#DBAD24";
   const rows = [
     {
       key: "phone",
@@ -564,10 +589,6 @@ const drawOpenxContact = (
         weight: 700,
       },
     );
-    drawStyledText(context, "x", contactLayout.markX, y, markColor, {
-      ...row.font,
-      weight: 400,
-    });
     drawStyledText(
       context,
       row.value,
@@ -696,13 +717,13 @@ const drawOpenxAwardStrip = (
   showContent: boolean,
 ) => {
   const stripColor = "#D1D6DF";
-  const stripHeight = 60;
-  const tailHeight = 10;
+  const stripHeight = awardStripHeight;
+  const tailHeight = 9;
   const stripTop = cardSize.height - stripHeight;
-  const stripCenterY = stripTop + 32;
+  const stripCenterY = stripTop + 29;
   const tailTop = cardSize.height - tailHeight;
-  const curveStartX = cardSize.width * (2 / 3);
-  const curveEndX = curveStartX + 92;
+  const curveStartX = cardSize.width * 0.61;
+  const curveEndX = curveStartX + 75;
 
   context.save();
   context.fillStyle = stripColor;
@@ -711,9 +732,9 @@ const drawOpenxAwardStrip = (
   context.lineTo(0, stripTop);
   context.lineTo(curveStartX, stripTop);
   context.bezierCurveTo(
-    curveStartX + 42,
+    curveStartX + 34,
     stripTop,
-    curveStartX + 48,
+    curveStartX + 39,
     tailTop,
     curveEndX,
     tailTop,
@@ -729,14 +750,26 @@ const drawOpenxAwardStrip = (
   }
 
   if (awardLogo) {
-    drawImageNatural(context, awardLogo, 85, stripCenterY, 86, 28);
+    drawImageNatural(
+      context,
+      awardLogo,
+      cardContentMargin + 20,
+      stripCenterY,
+      70,
+      30,
+    );
   }
 
   context.fillStyle = style.primaryColor;
   context.textAlign = "left";
   context.textBaseline = "middle";
   setFont(context, 20, 700, 0);
-  drawText(context, "고용노동부 장관상 수상 기업", 110, stripTop + 32);
+  drawText(
+    context,
+    "고용노동부 장관상 수상 기업",
+    cardContentMargin + 50,
+    stripTop + 31,
+  );
   context.restore();
 };
 
@@ -751,17 +784,17 @@ const drawOpenxSponsor = (
   }
 
   context.save();
-  const sponsorX = 750;
-  const sponsorImageY = 90;
-  const sponsorImageMaxWidth = 260;
-  const sponsorImageMaxHeight = 48;
+  const sponsorImageMaxWidth = 183;
+  const sponsorX = cardSize.width - cardContentMargin - sponsorImageMaxWidth;
+  const sponsorImageY = 83;
+  const sponsorImageMaxHeight = 44;
 
   context.textAlign = "left";
   context.fillStyle = "#ffffff";
   context.lineWidth = 2;
   context.fillStyle = style.primaryColor;
   setFont(context, 14, 700, 0.8);
-  drawText(context, "브랜드어워즈공식주관사", sponsorX, 80, 0.8);
+  drawText(context, "브랜드어워즈공식주관사", sponsorX, 73, 0.8);
 
   if (sponsorLogo) {
     const ratio = Math.min(
@@ -784,7 +817,7 @@ const drawOpenxSponsor = (
   }
 
   setFont(context, 20, 700, 2);
-  drawText(context, "OPENX", sponsorX, 134, 2);
+  drawText(context, "OPENX", sponsorX, 123, 2);
   context.restore();
 };
 

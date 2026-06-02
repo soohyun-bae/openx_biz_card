@@ -112,6 +112,15 @@ export default function Preview() {
     }));
   };
 
+  const resetOpenxFont = (key: OpenxFontStyleKey) => {
+    setOpenxStyle((current) => ({
+      ...current,
+      [key]: {
+        ...openxDefaultStyle[key],
+      },
+    }));
+  };
+
   const savePng = async () => {
     const exportScale = 4;
     const canvas = document.createElement("canvas");
@@ -214,6 +223,7 @@ export default function Preview() {
                   selectedOpenxPart={selectedOpenxPart}
                   onUpdateField={updateField}
                   onUpdateFont={updateOpenxFont}
+                  onResetFont={resetOpenxFont}
                   onBackToContentSelect={() => setStep("select")}
                 />
               </>
