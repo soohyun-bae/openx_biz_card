@@ -37,8 +37,6 @@ export const initialData: CardData = {
 
 export const openxDefaultStyle: OpenxCardStyle = {
   backgroundColor: "#fafafa",
-  borderColor: "#111827",
-  borderWidth: 3,
   logoSize: 240,
   logoBackground: "#111827",
   logoColor: "#ffffff",
@@ -68,6 +66,7 @@ export const openxDefaultStyle: OpenxCardStyle = {
 
 export const contentLabels: Record<CardContentKey, string> = {
   sponsorImage: "주관사 이미지",
+  awardStrip: "수상 기업 문구",
   name: "이름",
   role: "직급",
   logo: "로고 이미지",
@@ -80,6 +79,7 @@ export const contentLabels: Record<CardContentKey, string> = {
 
 export const initialContentVisibility: CardContentVisibility = {
   sponsorImage: true,
+  awardStrip: true,
   name: true,
   role: true,
   logo: true,

@@ -4,6 +4,7 @@ import type {
   CardContentVisibility,
   CardData,
   FontStyle,
+  LogoPresetId,
   OpenxCardStyle,
   OpenxEditablePart,
 } from "./businessCardTypes";
@@ -14,6 +15,7 @@ type CardPreviewPanelProps = {
   data: CardData;
   style: OpenxCardStyle;
   visibility: CardContentVisibility;
+  selectedLogoPreset: LogoPresetId;
   selectedOpenxPart: OpenxEditablePart;
   onSelectOpenxPart: (part: OpenxEditablePart) => void;
   canEditStyle: boolean;
@@ -34,6 +36,16 @@ type Bounds = {
   height: number;
 };
 
+type HotspotValueKey = "phone" | "fax" | "email" | "website" | "address";
+
+type HotspotValueRow = {
+  key: HotspotValueKey;
+  part: Extract<OpenxEditablePart, HotspotValueKey>;
+  label: string;
+  x: number;
+  skipHotspot?: boolean;
+};
+
 const profileLayout = {
   nameX: 72,
   baselineY: 210,
@@ -41,10 +53,22 @@ const profileLayout = {
 };
 
 const contactLayout = {
+  labelX: 72,
   valueX: 132,
   addressX: 72,
   addressBaselineY: 502,
   rowGap: 38,
+};
+
+const kcstProfileLayout = {
+  rightX: 980,
+  baselineY: 250,
+  gap: 30,
+};
+
+const kcstContactLayout = {
+  valueX: 118,
+  addressOffsetY: 20,
 };
 
 const estimateTextWidth = (
@@ -112,6 +136,28 @@ const getProfileRoleX = (
   );
 };
 
+const getKcstProfilePositions = (
+  data: CardData,
+  style: OpenxCardStyle,
+  visibility: CardContentVisibility,
+  useCanvasMeasurement: boolean,
+) => {
+  const roleWidth = visibility.role
+    ? estimateTextWidth(data.role, style.role, useCanvasMeasurement)
+    : 0;
+  const nameWidth = visibility.name
+    ? estimateTextWidth(data.name, style.name, useCanvasMeasurement)
+    : 0;
+  const visibleGap =
+    visibility.role && visibility.name ? kcstProfileLayout.gap : 0;
+  const roleX = kcstProfileLayout.rightX - roleWidth - visibleGap - nameWidth;
+
+  return {
+    roleX,
+    nameX: roleX + roleWidth + visibleGap,
+  };
+};
+
 const getHotspotStyle = ({ x, y, width, height }: Bounds) => ({
   left: `${(x / cardSize.width) * 100}%`,
   top: `${(y / cardSize.height) * 100}%`,
@@ -123,17 +169,41 @@ const buildHotspots = (
   data: CardData,
   style: OpenxCardStyle,
   visibility: CardContentVisibility,
+  selectedLogoPreset: LogoPresetId,
   useCanvasMeasurement: boolean,
 ): Hotspot[] => {
-  const valueRows = [
-    { key: "phone", part: "phone", label: "Phone", x: contactLayout.valueX },
-    { key: "fax", part: "fax", label: "Fax", x: contactLayout.valueX },
-    { key: "email", part: "email", label: "Email", x: contactLayout.valueX },
+  const isKcst = selectedLogoPreset === "kcst";
+  const valueRows: HotspotValueRow[] = [
+    {
+      key: "phone",
+      part: "phone",
+      label: "Phone",
+      x: isKcst ? kcstContactLayout.valueX : contactLayout.valueX,
+    },
+    {
+      key: "fax",
+      part: "fax",
+      label: "Fax",
+      x: isKcst ? kcstContactLayout.valueX : contactLayout.valueX,
+    },
+    {
+      key: "email",
+      part: "email",
+      label: "Email",
+      x: isKcst ? kcstContactLayout.valueX : contactLayout.valueX,
+    },
     {
       key: "website",
       part: "website",
       label: "Website",
-      x: contactLayout.valueX,
+      x: isKcst ? kcstContactLayout.valueX : contactLayout.valueX,
+    },
+    {
+      key: "address",
+      part: "address",
+      label: "Institute",
+      x: contactLayout.addressX,
+      skipHotspot: true,
     },
     {
       key: "address",
@@ -141,26 +211,29 @@ const buildHotspots = (
       label: "Address",
       x: contactLayout.addressX,
     },
-  ] as const;
-  const visibleValueRows = valueRows.filter((row) => visibility[row.key]);
+  ];
+  const visibleValueRows = valueRows.filter(
+    (row) => visibility[row.key] && (isKcst || !row.skipHotspot),
+  );
   const firstVisibleValueRowY =
     contactLayout.addressBaselineY -
     (visibleValueRows.length - 1) * contactLayout.rowGap;
-  const hotspots: Hotspot[] = [
-    {
-      part: "background",
-      label: "Background",
-      bounds: { x: 0, y: 0, width: cardSize.width, height: cardSize.height },
-    },
-  ];
+  const hotspots: Hotspot[] = [];
+
+  const kcstProfilePositions = getKcstProfilePositions(
+    data,
+    style,
+    visibility,
+    useCanvasMeasurement,
+  );
 
   if (visibility.name) {
     hotspots.push({
       part: "name",
       label: "Name",
       bounds: getTextBounds(
-        profileLayout.nameX,
-        profileLayout.baselineY,
+        isKcst ? kcstProfilePositions.nameX : profileLayout.nameX,
+        isKcst ? kcstProfileLayout.baselineY : profileLayout.baselineY,
         data.name,
         style.name,
         useCanvasMeasurement,
@@ -173,8 +246,10 @@ const buildHotspots = (
       part: "role",
       label: "Role",
       bounds: getTextBounds(
-        getProfileRoleX(data, style, visibility, useCanvasMeasurement),
-        profileLayout.baselineY,
+        isKcst
+          ? kcstProfilePositions.roleX
+          : getProfileRoleX(data, style, visibility, useCanvasMeasurement),
+        isKcst ? kcstProfileLayout.baselineY : profileLayout.baselineY,
         data.role,
         style.role,
         useCanvasMeasurement,
@@ -190,7 +265,14 @@ const buildHotspots = (
             size: style.contact.size,
           }
         : style.contact;
-    const baselineY = firstVisibleValueRowY + index * contactLayout.rowGap;
+    const addressOffsetY =
+      isKcst && row.key === "address" ? kcstContactLayout.addressOffsetY : 0;
+    const baselineY =
+      firstVisibleValueRowY + index * contactLayout.rowGap + addressOffsetY;
+
+    if (row.skipHotspot) {
+      return;
+    }
 
     hotspots.push({
       part: row.part,
@@ -214,6 +296,7 @@ export const CardPreviewPanel = ({
   data,
   style,
   visibility,
+  selectedLogoPreset,
   selectedOpenxPart,
   onSelectOpenxPart,
   canEditStyle,
@@ -223,7 +306,13 @@ export const CardPreviewPanel = ({
   const [visibleLabelPart, setVisibleLabelPart] =
     useState<OpenxEditablePart | null>(null);
   const labelTimeoutRef = useRef<number | null>(null);
-  const hotspots = buildHotspots(data, style, visibility, canMeasureText);
+  const hotspots = buildHotspots(
+    data,
+    style,
+    visibility,
+    selectedLogoPreset,
+    canMeasureText,
+  );
 
   useEffect(() => {
     const frame = requestAnimationFrame(() => setCanMeasureText(true));
@@ -299,7 +388,7 @@ export const CardPreviewPanel = ({
                       isSelected
                         ? "border-[#5ABCF4] bg-transparent text-[#5ABCF4]"
                         : "border-transparent text-transparent hover:border-main hover:bg-main/10 hover:text-teal-700"
-                    } ${hotspot.part === "background" ? "z-0" : "z-10"}`}
+                    } z-10`}
                   >
                     {isSelected &&
                     visibleLabelPart === hotspot.part &&

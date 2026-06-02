@@ -15,6 +15,7 @@ type ContentSelectorProps = {
 
 const contentKeys: CardContentKey[] = [
   "sponsorImage",
+  "awardStrip",
   "phone",
   "fax",
   "email",
@@ -28,7 +29,14 @@ export const ContentSelector = ({
   onToggleContent,
   onSelectLogoPreset,
   onNext,
-}: ContentSelectorProps) => (
+}: ContentSelectorProps) => {
+  const selectableContentKeys = contentKeys.filter(
+    (key) =>
+      selectedLogoPreset !== "kcst" ||
+      (key !== "sponsorImage" && key !== "awardStrip"),
+  );
+
+  return (
   <div className="flex min-h-0 flex-1 flex-col rounded-[30px] border border-slate-200 bg-white p-5 shadow-sm">
     <h2 className="text-lg text-main text-center font-bold">템플릿 선택</h2>
     {visibility.logo ? (
@@ -61,7 +69,7 @@ export const ContentSelector = ({
     ) : null}
     <div className="h-[0.5px] mt-5 w-full bg-slate-300" />
     <div className="mt-5 grid min-h-0 flex-1 grid-cols-2 auto-rows-[minmax(3.75rem,1fr)] gap-3">
-      {contentKeys.map((key) => {
+      {selectableContentKeys.map((key) => {
         const isVisible = visibility[key];
 
         return (
@@ -89,4 +97,5 @@ export const ContentSelector = ({
       다음
     </button>
   </div>
-);
+  );
+};

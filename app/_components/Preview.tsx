@@ -11,7 +11,6 @@ import {
   openxDefaultStyle,
 } from "./businessCardData";
 import { ContentSelector } from "./ContentSelector";
-import { OpenxStyleForm } from "./OpenxStyleForm";
 import type {
   CardContentKey,
   CardContentVisibility,
@@ -99,16 +98,6 @@ export default function Preview() {
     }));
   };
 
-  const updateOpenxStyle = <Key extends keyof OpenxCardStyle>(
-    key: Key,
-    value: OpenxCardStyle[Key],
-  ) => {
-    setOpenxStyle((current) => ({
-      ...current,
-      [key]: value,
-    }));
-  };
-
   const updateOpenxFont = (
     key: OpenxFontStyleKey,
     fontKey: keyof FontStyle,
@@ -171,6 +160,7 @@ export default function Preview() {
             data={previewData}
             style={openxStyle}
             visibility={requiredVisibility}
+            selectedLogoPreset={selectedLogoPreset}
             selectedOpenxPart={selectedOpenxPart}
             onSelectOpenxPart={setSelectedOpenxPart}
             canEditStyle={!isSelectStep}
@@ -220,17 +210,12 @@ export default function Preview() {
                   data={data}
                   visibility={requiredVisibility}
                   selectedLogoPreset={selectedLogoPreset}
+                  style={openxStyle}
+                  selectedOpenxPart={selectedOpenxPart}
                   onUpdateField={updateField}
+                  onUpdateFont={updateOpenxFont}
                   onBackToContentSelect={() => setStep("select")}
                 />
-                <div className="mt-[20px]">
-                  <OpenxStyleForm
-                    style={openxStyle}
-                    selectedPart={selectedOpenxPart}
-                    onUpdateStyle={updateOpenxStyle}
-                    onUpdateFont={updateOpenxFont}
-                  />
-                </div>
               </>
             )}
           </div>

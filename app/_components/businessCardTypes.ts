@@ -12,6 +12,7 @@ export type CardData = Record<FieldKey, string>;
 
 export type CardContentKey =
   | "sponsorImage"
+  | "awardStrip"
   | "name"
   | "role"
   | "logo"
@@ -49,8 +50,6 @@ export type FontStyle = {
 
 export type OpenxCardStyle = {
   backgroundColor: string;
-  borderColor: string;
-  borderWidth: number;
   logoSize: number;
   logoBackground: string;
   logoColor: string;
@@ -63,7 +62,6 @@ export type OpenxCardStyle = {
 };
 
 export type OpenxEditablePart =
-  | "background"
   | "name"
   | "role"
   | "phone"

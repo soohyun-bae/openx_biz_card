@@ -7,10 +7,6 @@ import type {
 type OpenxStyleFormProps = {
   style: OpenxCardStyle;
   selectedPart: OpenxEditablePart;
-  onUpdateStyle: <Key extends keyof OpenxCardStyle>(
-    key: Key,
-    value: OpenxCardStyle[Key],
-  ) => void;
   onUpdateFont: (
     key: FontStyleKey,
     fontKey: keyof FontStyle,
@@ -29,14 +25,7 @@ type NumberInputProps = {
   onChange: (value: number) => void;
 };
 
-type ColorInputProps = {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-};
-
 const partLabels: Record<OpenxEditablePart, string> = {
-  background: "배경",
   name: "이름",
   role: "직책",
   phone: "폰 번호",
@@ -68,27 +57,8 @@ const NumberInput = ({
       max={max}
       step={step}
       onChange={(event) => onChange(toNumber(event.target.value, value))}
-      className="h-10 rounded-md border border-slate-300 px-3 text-sm outline-none transition focus:border-teal-500 focus:ring-2 focus:ring-teal-100"
+      className="h-10 rounded-md border border-slate-300 px-3 text-sm outline-none transition focus:border-main focus:ring-2 focus:ring-teal-100"
     />
-  </label>
-);
-
-const ColorInput = ({ label, value, onChange }: ColorInputProps) => (
-  <label className="grid gap-1.5">
-    <span className="text-xs font-semibold text-slate-600">{label}</span>
-    <span className="grid grid-cols-[44px_1fr] overflow-hidden rounded-md border border-slate-300 bg-white focus-within:border-teal-500 focus-within:ring-2 focus-within:ring-teal-100">
-      <input
-        type="color"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="h-10 w-11 cursor-pointer border-0 bg-transparent p-1"
-      />
-      <input
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="h-10 min-w-0 border-0 px-3 text-sm outline-none"
-      />
-    </span>
   </label>
 );
 
@@ -128,34 +98,16 @@ const FontControls = ({
 export const OpenxStyleForm = ({
   style,
   selectedPart,
-  onUpdateStyle,
   onUpdateFont,
 }: OpenxStyleFormProps) => {
   const renderContactControls = () => (
-    <div className="grid gap-3">
-      <ColorInput
-        label="Text color"
-        value={style.secondaryColor}
-        onChange={(value) => onUpdateStyle("secondaryColor", value)}
-      />
-      <FontControls
-        font={style.contact}
-        onChange={(fontKey, value) => onUpdateFont("contact", fontKey, value)}
-      />
-    </div>
+    <FontControls
+      font={style.contact}
+      onChange={(fontKey, value) => onUpdateFont("contact", fontKey, value)}
+    />
   );
 
   const renderControls = () => {
-    if (selectedPart === "background") {
-      return (
-        <ColorInput
-          label="Background color"
-          value={style.backgroundColor}
-          onChange={(value) => onUpdateStyle("backgroundColor", value)}
-        />
-      );
-    }
-
     if (
       selectedPart === "phone" ||
       selectedPart === "fax" ||
@@ -167,53 +119,39 @@ export const OpenxStyleForm = ({
 
     if (selectedPart === "website") {
       return (
-        <div className="grid gap-3">
-          <ColorInput
-            label="Text color"
-            value={style.secondaryColor}
-            onChange={(value) => onUpdateStyle("secondaryColor", value)}
-          />
-          <FontControls
-            font={style.website}
-            onChange={(fontKey, value) =>
-              onUpdateFont("website", fontKey, value)
-            }
-          />
-        </div>
+        <FontControls
+          font={style.website}
+          onChange={(fontKey, value) => onUpdateFont("website", fontKey, value)}
+        />
       );
     }
 
     return (
-      <div className="grid gap-3">
-        <ColorInput
-          label="Text color"
-          value={style.primaryColor}
-          onChange={(value) => onUpdateStyle("primaryColor", value)}
-        />
-        <FontControls
-          font={style[selectedPart]}
-          onChange={(fontKey, value) =>
-            onUpdateFont(selectedPart, fontKey, value)
-          }
-        />
-      </div>
+      <FontControls
+        font={style[selectedPart]}
+        onChange={(fontKey, value) =>
+          onUpdateFont(selectedPart, fontKey, value)
+        }
+      />
     );
   };
 
+  const controls = renderControls();
+
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-lg  bg-white p-4">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-bold">OpenX 스타일</h2>
+          <h2 className="text-lg font-bold text-main">스타일 변경</h2>
           <p className="mt-1 text-sm text-slate-600">
-            미리보기에서 선택한 요소만 수정합니다.
+            미리보기에서 선택한 요소를 수정합니다.
           </p>
         </div>
-        <span className="rounded-md bg-teal-50 px-3 py-1 text-sm font-bold text-teal-700">
+        <span className="rounded-[50px] bg-[#F1F5F9] px-3 py-1 text-sm font-bold text-main">
           {partLabels[selectedPart]}
         </span>
       </div>
-      <div className="mt-4 grid gap-3">{renderControls()}</div>
+      {controls ? <div className="mt-4 grid gap-3">{controls}</div> : null}
     </div>
   );
 };

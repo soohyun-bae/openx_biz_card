@@ -111,12 +111,22 @@ const profileLayout = {
   roleGap: 36,
 };
 
+const kcstProfileLayout = {
+  rightX: 980,
+  baselineY: 250,
+  gap: 30,
+};
+
 const contactLayout = {
   labelX: 72,
   markX: 104,
   valueX: 132,
   addressBaselineY: 502,
   rowGap: 38,
+};
+
+const kcstContactLayout = {
+  addressOffsetY: 20,
 };
 
 const loadLogo = (src: string) =>
@@ -229,6 +239,38 @@ const drawOpenxBackground = (
 ) => {
   context.fillStyle = style.backgroundColor;
   context.fillRect(0, 0, cardSize.width, cardSize.height);
+};
+
+const drawKcstBackground = (
+  context: CanvasRenderingContext2D,
+  background: HTMLImageElement | null,
+  style: OpenxCardStyle,
+) => {
+  drawOpenxBackground(context, style);
+
+  if (!background) {
+    return;
+  }
+
+  const maxWidth = cardSize.width * 0.55;
+  const maxHeight = cardSize.height * 0.7;
+  const ratio = Math.min(
+    maxWidth / background.width,
+    maxHeight / background.height,
+  );
+  const drawWidth = background.width * ratio;
+  const drawHeight = background.height * ratio;
+
+  context.save();
+  context.globalAlpha = 0.05;
+  context.drawImage(
+    background,
+    (cardSize.width - drawWidth) / 2,
+    (cardSize.height - drawHeight) / 2,
+    drawWidth,
+    drawHeight,
+  );
+  context.restore();
 };
 
 const drawOpenxLogo = (
@@ -381,6 +423,61 @@ const drawOpenxProfile = (
   );
 };
 
+const drawKcstProfile = (
+  context: CanvasRenderingContext2D,
+  data: CardData,
+  style: OpenxCardStyle,
+  visibility: CardContentVisibility,
+) => {
+  const roleWidth = visibility.role
+    ? measureText(
+        context,
+        data.role,
+        setFont(
+          context,
+          style.role.size,
+          style.role.weight,
+          style.role.letterSpacing,
+        ),
+      )
+    : 0;
+  const nameWidth = visibility.name
+    ? measureText(
+        context,
+        data.name,
+        setFont(
+          context,
+          style.name.size,
+          style.name.weight,
+          style.name.letterSpacing,
+        ),
+      )
+    : 0;
+  const visibleGap =
+    visibility.role && visibility.name ? kcstProfileLayout.gap : 0;
+  const roleX = kcstProfileLayout.rightX - roleWidth - visibleGap - nameWidth;
+  const nameX = roleX + roleWidth + visibleGap;
+
+  drawVisibleText(
+    context,
+    visibility.role,
+    data.role,
+    roleX,
+    kcstProfileLayout.baselineY,
+    style.primaryColor,
+    style.role,
+  );
+  drawVisibleText(
+    context,
+    visibility.name,
+    data.name,
+    nameX,
+    kcstProfileLayout.baselineY,
+    style.primaryColor,
+    style.name,
+  );
+};
+
 const drawOpenxContact = (
   context: CanvasRenderingContext2D,
   data: CardData,
@@ -474,10 +571,129 @@ const drawOpenxContact = (
   });
 };
 
+const drawKcstContact = (
+  context: CanvasRenderingContext2D,
+  data: CardData,
+  style: OpenxCardStyle,
+  visibility: CardContentVisibility,
+) => {
+  const badgeColor = "#E0AF6C";
+  const badgeSize = 28;
+  const badgeTextFont = {
+    ...style.contact,
+    size: 16,
+    weight: 700,
+    letterSpacing: 0,
+  };
+  const addressValueFont = {
+    ...style.contact,
+    weight: 400,
+  };
+  const instituteFont = {
+    ...style.contact,
+    weight: 600,
+  };
+  const rows = [
+    {
+      key: "phone",
+      label: "T",
+      value: data.phone,
+      font: addressValueFont,
+    },
+    {
+      key: "fax",
+      label: "F",
+      value: data.fax,
+      font: addressValueFont,
+    },
+    {
+      key: "email",
+      label: "E",
+      value: data.email,
+      font: addressValueFont,
+    },
+    {
+      key: "website",
+      label: "H",
+      value: data.website,
+      font: {
+        ...style.website,
+        size: addressValueFont.size,
+        weight: addressValueFont.weight,
+      },
+    },
+    {
+      key: "address",
+      label: "",
+      value: "대한민국고객만족평가원",
+      font: instituteFont,
+    },
+    {
+      key: "address",
+      label: "",
+      value: data.address,
+      font: addressValueFont,
+    },
+  ] as const;
+  const visibleRows = rows.filter((row) => visibility[row.key]);
+  const firstVisibleRowY =
+    contactLayout.addressBaselineY -
+    (visibleRows.length - 1) * contactLayout.rowGap;
+
+  visibleRows.forEach((row, index) => {
+    const addressOffsetY =
+      row.key === "address" ? kcstContactLayout.addressOffsetY : 0;
+    const y = firstVisibleRowY + index * contactLayout.rowGap + addressOffsetY;
+
+    if (!row.label) {
+      drawStyledText(
+        context,
+        row.value,
+        contactLayout.labelX,
+        y,
+        style.secondaryColor,
+        row.font,
+      );
+      return;
+    }
+
+    const badgeX = contactLayout.labelX;
+    const badgeCenterX = badgeX + badgeSize / 2;
+    const badgeCenterY = y - badgeSize / 2 + 4;
+
+    context.save();
+    context.fillStyle = badgeColor;
+    context.beginPath();
+    context.arc(badgeCenterX, badgeCenterY, badgeSize / 2, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = "#ffffff";
+    context.textAlign = "center";
+    context.textBaseline = "middle";
+    setFont(
+      context,
+      badgeTextFont.size,
+      badgeTextFont.weight,
+      badgeTextFont.letterSpacing,
+    );
+    drawText(context, row.label, badgeCenterX, badgeCenterY);
+    context.restore();
+
+    drawStyledText(
+      context,
+      row.value,
+      badgeX + badgeSize + 18,
+      y,
+      style.secondaryColor,
+      row.font,
+    );
+  });
+};
+
 const drawOpenxAwardStrip = (
   context: CanvasRenderingContext2D,
   awardLogo: HTMLImageElement | null,
   style: OpenxCardStyle,
+  showContent: boolean,
 ) => {
   const stripColor = "#D1D6DF";
   const stripHeight = 60;
@@ -506,6 +722,11 @@ const drawOpenxAwardStrip = (
   context.lineTo(cardSize.width, cardSize.height);
   context.closePath();
   context.fill();
+
+  if (!showContent) {
+    context.restore();
+    return;
+  }
 
   if (awardLogo) {
     drawImageNatural(context, awardLogo, 85, stripCenterY, 86, 28);
@@ -536,7 +757,6 @@ const drawOpenxSponsor = (
   const sponsorImageMaxHeight = 48;
 
   context.textAlign = "left";
-  context.strokeStyle = style.borderColor;
   context.fillStyle = "#ffffff";
   context.lineWidth = 2;
   context.fillStyle = style.primaryColor;
@@ -588,14 +808,13 @@ const drawOpenxTemplate = (
   drawOpenxSponsor(context, sponsorLogo, style, visibility);
   drawOpenxProfile(context, data, style, visibility);
   drawOpenxContact(context, data, style, visibility);
-  drawOpenxAwardStrip(context, awardLogo, style);
+  drawOpenxAwardStrip(context, awardLogo, style, visibility.awardStrip);
 };
 
 const drawKcstTemplate = (
   context: CanvasRenderingContext2D,
   logo: HTMLImageElement | null,
-  sponsorLogo: HTMLImageElement | null,
-  awardLogo: HTMLImageElement | null,
+  background: HTMLImageElement | null,
   data: CardData,
   styleInput?: Partial<OpenxCardStyle>,
   visibilityInput?: CardContentVisibility,
@@ -604,14 +823,12 @@ const drawKcstTemplate = (
   const visibility = visibilityInput ?? initialContentVisibility;
 
   // KCST keeps the business-card content system but owns its logo/template layer.
-  drawOpenxBackground(context, style);
+  drawKcstBackground(context, background, style);
   if (visibility.logo) {
     drawKcstLogo(context, logo, style);
   }
-  drawOpenxSponsor(context, sponsorLogo, style, visibility);
-  drawOpenxProfile(context, data, style, visibility);
-  drawOpenxContact(context, data, style, visibility);
-  drawOpenxAwardStrip(context, awardLogo, style);
+  drawKcstProfile(context, data, style, visibility);
+  drawKcstContact(context, data, style, visibility);
 };
 
 const getCardTemplateId = (logoPreset?: LogoPresetId): CardTemplateId =>
@@ -632,30 +849,33 @@ export const drawCard = async (
   );
   const presetLogoSrc =
     styles?.logoPreset === "custom" ? data.logo : selectedLogoPreset?.src;
+  const templateId = getCardTemplateId(styles?.logoPreset);
   const logo =
     styles?.content?.logo === false
       ? null
       : await loadLogo(presetLogoSrc ?? "");
   const selectedSponsorLogoPreset = sponsorLogoPresets[0];
   const sponsorLogo =
-    styles?.content?.sponsorImage === false
+    templateId === "kcst" || styles?.content?.sponsorImage === false
       ? null
       : await loadLogo(selectedSponsorLogoPreset?.src ?? "");
-  const awardLogo = await loadLogo("/logos/biz-card-bottom-logo.png");
+  const awardLogo =
+    templateId === "kcst" || styles?.content?.awardStrip === false
+      ? null
+      : await loadLogo("/logos/biz-card-bottom-logo.png");
+  const kcstBackground =
+    templateId === "kcst" ? await loadLogo("/logos/kcst-bg.png") : null;
 
   context.save();
   context.scale(scale, scale);
   context.clearRect(0, 0, cardSize.width, cardSize.height);
   context.textBaseline = "alphabetic";
 
-  const templateId = getCardTemplateId(styles?.logoPreset);
-
   if (templateId === "kcst") {
     drawKcstTemplate(
       context,
       logo,
-      sponsorLogo,
-      awardLogo,
+      kcstBackground,
       data,
       styles?.openx,
       styles?.content,
