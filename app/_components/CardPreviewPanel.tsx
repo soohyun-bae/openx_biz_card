@@ -40,6 +40,13 @@ const profileLayout = {
   roleGap: 36,
 };
 
+const contactLayout = {
+  valueX: 132,
+  addressX: 72,
+  addressBaselineY: 502,
+  rowGap: 38,
+};
+
 const estimateTextWidth = (
   text: string,
   font: FontStyle,
@@ -119,24 +126,26 @@ const buildHotspots = (
   useCanvasMeasurement: boolean,
 ): Hotspot[] => {
   const valueRows = [
-    { key: "phone", part: "phone", label: "Phone", x: 132, baselineY: 350 },
-    { key: "fax", part: "fax", label: "Fax", x: 132, baselineY: 388 },
-    { key: "email", part: "email", label: "Email", x: 132, baselineY: 426 },
+    { key: "phone", part: "phone", label: "Phone", x: contactLayout.valueX },
+    { key: "fax", part: "fax", label: "Fax", x: contactLayout.valueX },
+    { key: "email", part: "email", label: "Email", x: contactLayout.valueX },
     {
       key: "website",
       part: "website",
       label: "Website",
-      x: 132,
-      baselineY: 464,
+      x: contactLayout.valueX,
     },
     {
       key: "address",
       part: "address",
       label: "Address",
-      x: 72,
-      baselineY: 502,
+      x: contactLayout.addressX,
     },
   ] as const;
+  const visibleValueRows = valueRows.filter((row) => visibility[row.key]);
+  const firstVisibleValueRowY =
+    contactLayout.addressBaselineY -
+    (visibleValueRows.length - 1) * contactLayout.rowGap;
   const hotspots: Hotspot[] = [
     {
       part: "background",
@@ -173,11 +182,7 @@ const buildHotspots = (
     });
   }
 
-  valueRows.forEach((row) => {
-    if (!visibility[row.key]) {
-      return;
-    }
-
+  visibleValueRows.forEach((row, index) => {
     const font =
       row.key === "website"
         ? {
@@ -185,13 +190,14 @@ const buildHotspots = (
             size: style.contact.size,
           }
         : style.contact;
+    const baselineY = firstVisibleValueRowY + index * contactLayout.rowGap;
 
     hotspots.push({
       part: row.part,
       label: row.label,
       bounds: getTextBounds(
         row.x,
-        row.baselineY,
+        baselineY,
         data[row.key],
         font,
         useCanvasMeasurement,

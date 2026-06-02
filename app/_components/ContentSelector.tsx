@@ -30,28 +30,37 @@ export const ContentSelector = ({
   onNext,
 }: ContentSelectorProps) => (
   <div className="flex min-h-0 flex-1 flex-col rounded-[30px] border border-slate-200 bg-white p-5 shadow-sm">
-    <h2 className="text-lg text-main text-center">로고 이미지</h2>
+    <h2 className="text-lg text-main text-center font-bold">템플릿 선택</h2>
     {visibility.logo ? (
       <div className="mt-4 grid gap-2 border-slate-200">
-        <div className="grid grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 gap-3">
           {logoPresets.map((preset) => (
             <button
               key={preset.id}
               type="button"
               onClick={() => onSelectLogoPreset(preset.id)}
-              className={`h-14 rounded-md border px-3 text-sm transition ${
+              className={`flex h-20 items-center justify-center rounded-[20px] border px-3 text-sm transition ${
                 selectedLogoPreset === preset.id
                   ? "border-main text-main font-bold"
                   : "border-[#F1F5F9] bg-white text-sub hover:border-slate-400"
               }`}
             >
-              {preset.name}
+              {preset.src ? (
+                <img
+                  src={preset.src}
+                  alt={preset.name}
+                  className="max-h-16 w-full object-contain"
+                />
+              ) : (
+                <p>{preset.name}</p>
+              )}
             </button>
           ))}
         </div>
       </div>
     ) : null}
-    <div className="mt-5 grid min-h-0 flex-1 grid-cols-2 auto-rows-fr gap-3">
+    <div className="h-[0.5px] mt-5 w-full bg-slate-300" />
+    <div className="mt-5 grid min-h-0 flex-1 grid-cols-2 auto-rows-[minmax(3.75rem,1fr)] gap-3">
       {contentKeys.map((key) => {
         const isVisible = visibility[key];
 
@@ -61,7 +70,7 @@ export const ContentSelector = ({
             type="button"
             aria-pressed={isVisible}
             onClick={() => onToggleContent(key, !isVisible)}
-            className={`min-h-16 rounded-md border px-3 py-3 text-sm transition text-sub ${
+            className={`rounded-[20px] border px-3 py-2 text-sm transition text-sub ${
               isVisible
                 ? "border-main text-main font-bold"
                 : "border-[#F1F5F9] bg-white text-sub hover:border-slate-400"

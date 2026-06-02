@@ -25,6 +25,8 @@ export type CardContentVisibility = Record<CardContentKey, boolean>;
 
 export type LogoPresetId = "openx" | "kcst" | "hellobell" | "custom";
 
+export type CardTemplateId = "openx" | "kcst";
+
 export type LogoPreset = {
   id: LogoPresetId;
   name: string;

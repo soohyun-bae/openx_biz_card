@@ -8,6 +8,7 @@ import {
 import type {
   CardContentVisibility,
   CardData,
+  CardTemplateId,
   FontStyle,
   LogoPresetId,
   OpenxCardStyle,
@@ -108,6 +109,14 @@ const profileLayout = {
   nameX: 72,
   baselineY: 210,
   roleGap: 36,
+};
+
+const contactLayout = {
+  labelX: 72,
+  markX: 104,
+  valueX: 132,
+  addressBaselineY: 502,
+  rowGap: 38,
 };
 
 const loadLogo = (src: string) =>
@@ -228,10 +237,9 @@ const drawOpenxLogo = (
   style: OpenxCardStyle,
   logoPreset: LogoPresetId,
 ) => {
-  const x = logoPreset === "kcst" ? 65 : 72;
-  const y = logoPreset === "kcst" ? -95 : -20;
-  const logoSize =
-    logoPreset === "kcst" ? style.logoSize * 1.6 : style.logoSize;
+  const x = 72;
+  const y = -20;
+  const logoSize = style.logoSize;
 
   if (logo) {
     drawLogoBox(
@@ -264,15 +272,6 @@ const drawOpenxLogo = (
   context.save();
   context.fillStyle = style.logoBackground;
   context.strokeStyle = style.logoBackground;
-
-  if (logoPreset === "kcst") {
-    context.textAlign = "left";
-    setFont(context, Math.round(style.logoSize * 0.34), 800, 1);
-    drawText(context, "OPENX", x, y + style.logoSize * 0.52, 1);
-    context.fillRect(x, y + style.logoSize * 0.68, style.logoSize * 1.22, 8);
-    context.restore();
-    return;
-  }
 
   if (logoPreset === "hellobell") {
     context.fillRect(x, y, style.logoSize, style.logoSize);
@@ -307,6 +306,40 @@ const drawOpenxLogo = (
   context.restore();
 };
 
+const drawKcstLogo = (
+  context: CanvasRenderingContext2D,
+  logo: HTMLImageElement | null,
+  style: OpenxCardStyle,
+) => {
+  const x = 65;
+  const y = -95;
+  const logoSize = style.logoSize * 1.6;
+
+  context.save();
+
+  if (logo) {
+    drawLogoBox(
+      context,
+      logo,
+      "KCST",
+      x,
+      y,
+      logoSize,
+      style.logoBackground,
+      style.logoColor,
+    );
+    context.restore();
+    return;
+  }
+
+  context.fillStyle = style.logoBackground;
+  context.textAlign = "left";
+  setFont(context, Math.round(style.logoSize * 0.34), 800, 1);
+  drawText(context, "KCST", x, y + style.logoSize * 0.52, 1);
+  context.fillRect(x, y + style.logoSize * 0.68, style.logoSize * 1.22, 8);
+  context.restore();
+};
+
 const drawOpenxProfile = (
   context: CanvasRenderingContext2D,
   data: CardData,
@@ -318,7 +351,12 @@ const drawOpenxProfile = (
       measureText(
         context,
         data.name,
-        setFont(context, style.name.size, style.name.weight, style.name.letterSpacing),
+        setFont(
+          context,
+          style.name.size,
+          style.name.weight,
+          style.name.letterSpacing,
+        ),
       ) +
       profileLayout.roleGap
     : profileLayout.nameX;
@@ -350,11 +388,6 @@ const drawOpenxContact = (
   visibility: CardContentVisibility,
 ) => {
   const markColor = "#DBAD24";
-  const labelX = 72;
-  const markX = 104;
-  const valueX = 132;
-  const rowY = 350;
-  const rowGap = 38;
   const addressValueFont = {
     ...style.contact,
     weight: 400,
@@ -380,7 +413,7 @@ const drawOpenxContact = (
     },
     {
       key: "website",
-      label: "H",
+      label: "",
       value: data.website,
       font: {
         ...style.website,
@@ -395,19 +428,19 @@ const drawOpenxContact = (
       font: addressValueFont,
     },
   ] as const;
+  const visibleRows = rows.filter((row) => visibility[row.key]);
+  const firstVisibleRowY =
+    contactLayout.addressBaselineY -
+    (visibleRows.length - 1) * contactLayout.rowGap;
 
-  rows.forEach((row, index) => {
-    if (!visibility[row.key]) {
-      return;
-    }
-
-    const y = rowY + index * rowGap;
+  visibleRows.forEach((row, index) => {
+    const y = firstVisibleRowY + index * contactLayout.rowGap;
 
     if (!row.label) {
       drawStyledText(
         context,
         row.value,
-        labelX,
+        contactLayout.labelX,
         y,
         style.secondaryColor,
         row.font,
@@ -415,18 +448,25 @@ const drawOpenxContact = (
       return;
     }
 
-    drawStyledText(context, row.label, labelX, y, style.secondaryColor, {
-      ...style.contact,
-      weight: 700,
-    });
-    drawStyledText(context, "x", markX, y, markColor, {
+    drawStyledText(
+      context,
+      row.label,
+      contactLayout.labelX,
+      y,
+      style.secondaryColor,
+      {
+        ...style.contact,
+        weight: 700,
+      },
+    );
+    drawStyledText(context, "x", contactLayout.markX, y, markColor, {
       ...style.contact,
       weight: 400,
     });
     drawStyledText(
       context,
       row.value,
-      valueX,
+      contactLayout.valueX,
       y,
       style.secondaryColor,
       row.font,
@@ -551,6 +591,32 @@ const drawOpenxTemplate = (
   drawOpenxAwardStrip(context, awardLogo, style);
 };
 
+const drawKcstTemplate = (
+  context: CanvasRenderingContext2D,
+  logo: HTMLImageElement | null,
+  sponsorLogo: HTMLImageElement | null,
+  awardLogo: HTMLImageElement | null,
+  data: CardData,
+  styleInput?: Partial<OpenxCardStyle>,
+  visibilityInput?: CardContentVisibility,
+) => {
+  const style = mergeOpenxStyle(styleInput);
+  const visibility = visibilityInput ?? initialContentVisibility;
+
+  // KCST keeps the business-card content system but owns its logo/template layer.
+  drawOpenxBackground(context, style);
+  if (visibility.logo) {
+    drawKcstLogo(context, logo, style);
+  }
+  drawOpenxSponsor(context, sponsorLogo, style, visibility);
+  drawOpenxProfile(context, data, style, visibility);
+  drawOpenxContact(context, data, style, visibility);
+  drawOpenxAwardStrip(context, awardLogo, style);
+};
+
+const getCardTemplateId = (logoPreset?: LogoPresetId): CardTemplateId =>
+  logoPreset === "kcst" ? "kcst" : "openx";
+
 export const drawCard = async (
   context: CanvasRenderingContext2D,
   data: CardData,
@@ -582,16 +648,30 @@ export const drawCard = async (
   context.clearRect(0, 0, cardSize.width, cardSize.height);
   context.textBaseline = "alphabetic";
 
-  drawOpenxTemplate(
-    context,
-    logo,
-    sponsorLogo,
-    awardLogo,
-    data,
-    styles?.openx,
-    styles?.content,
-    styles?.logoPreset,
-  );
+  const templateId = getCardTemplateId(styles?.logoPreset);
+
+  if (templateId === "kcst") {
+    drawKcstTemplate(
+      context,
+      logo,
+      sponsorLogo,
+      awardLogo,
+      data,
+      styles?.openx,
+      styles?.content,
+    );
+  } else {
+    drawOpenxTemplate(
+      context,
+      logo,
+      sponsorLogo,
+      awardLogo,
+      data,
+      styles?.openx,
+      styles?.content,
+      styles?.logoPreset,
+    );
+  }
 
   context.restore();
 };
