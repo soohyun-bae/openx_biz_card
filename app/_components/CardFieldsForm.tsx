@@ -11,6 +11,7 @@ type CardFieldsFormProps = {
   visibility: CardContentVisibility;
   selectedLogoPreset: LogoPresetId;
   onUpdateField: (field: FieldKey, value: string) => void;
+  onBackToContentSelect: () => void;
 };
 
 type EditableField = Extract<FieldKey, keyof CardContentVisibility>;
@@ -30,6 +31,7 @@ export const CardFieldsForm = ({
   visibility,
   selectedLogoPreset,
   onUpdateField,
+  onBackToContentSelect,
 }: CardFieldsFormProps) => {
   const updateLogo = (file: File | undefined) => {
     if (!file) {
@@ -78,7 +80,7 @@ export const CardFieldsForm = ({
                 <button
                   type="button"
                   onClick={() => onUpdateField("logo", "")}
-                  className="h-9 justify-self-start rounded-md border border-slate-300 px-3 text-sm font-semibold text-slate-700 transition hover:border-teal-500 hover:text-teal-700"
+                  className="h-11 justify-self-start rounded-md border border-slate-300 px-4 text-sm font-semibold text-slate-700 transition hover:border-teal-500 hover:text-teal-700"
                 >
                   로고 제거
                 </button>
@@ -87,6 +89,13 @@ export const CardFieldsForm = ({
           </label>
         ) : null}
       </div>
+      <button
+        type="button"
+        onClick={onBackToContentSelect}
+        className="mt-4 h-14 w-full rounded-md border border-slate-300 px-5 font-bold text-slate-700 transition hover:border-teal-500 hover:text-teal-700"
+      >
+        내용 선택으로 돌아가기
+      </button>
     </div>
   );
 };

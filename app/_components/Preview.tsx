@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CardFieldsForm } from "./CardFieldsForm";
 import { CardPreviewPanel } from "./CardPreviewPanel";
 import { drawCard } from "./cardCanvas";
@@ -41,6 +41,15 @@ export default function Preview() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isSelectStep = step === "select";
   const previewData = isSelectStep ? initialData : data;
+  const requiredVisibility = useMemo<CardContentVisibility>(
+    () => ({
+      ...visibility,
+      logo: true,
+      name: true,
+      role: true,
+    }),
+    [visibility],
+  );
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -66,11 +75,11 @@ export default function Preview() {
       (previewWidth / cardSize.width) * ratio,
       {
         openx: openxStyle,
-        content: visibility,
+        content: requiredVisibility,
         logoPreset: selectedLogoPreset,
       },
     );
-  }, [openxStyle, previewData, selectedLogoPreset, visibility]);
+  }, [openxStyle, previewData, requiredVisibility, selectedLogoPreset]);
 
   const updateField = (field: FieldKey, value: string) => {
     setData((current) => ({
@@ -80,6 +89,10 @@ export default function Preview() {
   };
 
   const toggleContent = (key: CardContentKey, enabled: boolean) => {
+    if (key === "logo" || key === "name" || key === "role") {
+      return;
+    }
+
     setVisibility((current) => ({
       ...current,
       [key]: enabled,
@@ -123,7 +136,7 @@ export default function Preview() {
     canvas.height = cardSize.height * exportScale;
     await drawCard(context, data, exportScale, {
       openx: openxStyle,
-      content: visibility,
+      content: requiredVisibility,
       logoPreset: selectedLogoPreset,
     });
 
@@ -134,28 +147,46 @@ export default function Preview() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f4f7fb] px-5 py-6 text-slate-950 sm:px-8 lg:px-10">
-      <div className="mx-auto flex w-full max-w-7xl flex-col gap-6">
-        <header className="flex flex-col gap-2">
-          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-teal-700">
-            Business Card Maker
-          </p>
-          <h1 className="text-3xl font-bold leading-tight sm:text-4xl">
-            내용을 고르고, 다음 단계에서 세부 정보를 수정해요.
-          </h1>
-        </header>
+    <main className="min-h-screen bg-[#f4f7fb] text-slate-950">
+      <header className="w-full rounded-b-[30px] border-b border-slate-200 bg-white py-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+        <div className="mx-auto w-full max-w-[1621px] px-5 sm:px-8 lg:px-10">
+          <div className="grid justify-center gap-6 lg:grid-cols-[minmax(0,866px)_minmax(0,703px)]">
+            <div className="flex w-full max-w-[866px] flex-col gap-2">
+              <p className="text-sm uppercase tracking-[0.16em] text-main">
+                Business Card Maker
+              </p>
+              <h1 className="text-3xl font-bold text-sub leading-tight sm:text-4xl">
+                명함 커스텀 제작
+              </h1>
+            </div>
+          </div>
+        </div>
+      </header>
 
-        <section className="grid gap-6 lg:grid-cols-[390px_1fr]">
-          <div className="flex flex-col gap-5">
-            <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-              <div className="grid grid-cols-2 gap-2">
+      <div className="mx-auto flex w-full max-w-[1621px] flex-col gap-6 px-5 py-6 sm:px-8 lg:px-10">
+        <section className="grid justify-center gap-6 lg:grid-cols-[minmax(0,866px)_minmax(0,703px)]">
+          <CardPreviewPanel
+            canvasRef={canvasRef}
+            onSavePng={savePng}
+            data={previewData}
+            style={openxStyle}
+            visibility={requiredVisibility}
+            selectedOpenxPart={selectedOpenxPart}
+            onSelectOpenxPart={setSelectedOpenxPart}
+            canEditStyle={!isSelectStep}
+            canSave={!isSelectStep}
+          />
+
+          <div className="flex w-full max-w-[703px] flex-col gap-[20px] lg:h-[var(--editor-panel-height)] lg:overflow-y-auto">
+            <div className="rounded-[50px] border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="flex items-center rounded-[50px]">
                 <button
                   type="button"
                   onClick={() => setStep("select")}
-                  className={`h-11 rounded-md text-sm font-bold transition ${
+                  className={`relative h-14 flex-1 rounded-[50px] text-sm font-bold transition ${
                     isSelectStep
-                      ? "bg-slate-950 text-white"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      ? "z-20 bg-main text-white"
+                      : "z-10 -mr-10 bg-slate-100 text-slate-600 hover:bg-slate-200"
                   }`}
                 >
                   1. 내용 선택
@@ -163,66 +194,46 @@ export default function Preview() {
                 <button
                   type="button"
                   onClick={() => setStep("edit")}
-                  className={`h-11 rounded-md text-sm font-bold transition ${
+                  className={`relative h-14 flex-1 rounded-[50px] text-sm font-bold transition ${
                     !isSelectStep
-                      ? "bg-slate-950 text-white"
-                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      ? "z-20 bg-main text-white"
+                      : "z-10 -ml-10 bg-slate-100 text-slate-600 hover:bg-slate-200"
                   }`}
                 >
                   2. 내용 수정
                 </button>
               </div>
             </div>
-
             {isSelectStep ? (
               <>
                 <ContentSelector
-                  visibility={visibility}
+                  visibility={requiredVisibility}
                   selectedLogoPreset={selectedLogoPreset}
                   onToggleContent={toggleContent}
                   onSelectLogoPreset={setSelectedLogoPreset}
+                  onNext={() => setStep("edit")}
                 />
-                <button
-                  type="button"
-                  onClick={() => setStep("edit")}
-                  className="h-12 rounded-md bg-teal-600 px-5 font-bold text-white transition hover:bg-teal-700"
-                >
-                  다음
-                </button>
               </>
             ) : (
               <>
                 <CardFieldsForm
                   data={data}
-                  visibility={visibility}
+                  visibility={requiredVisibility}
                   selectedLogoPreset={selectedLogoPreset}
                   onUpdateField={updateField}
+                  onBackToContentSelect={() => setStep("select")}
                 />
-                <OpenxStyleForm
-                  style={openxStyle}
-                  selectedPart={selectedOpenxPart}
-                  onUpdateStyle={updateOpenxStyle}
-                  onUpdateFont={updateOpenxFont}
-                />
-                <button
-                  type="button"
-                  onClick={() => setStep("select")}
-                  className="h-11 rounded-md border border-slate-300 px-5 font-bold text-slate-700 transition hover:border-teal-500 hover:text-teal-700"
-                >
-                  내용 선택으로 돌아가기
-                </button>
+                <div className="mt-[20px]">
+                  <OpenxStyleForm
+                    style={openxStyle}
+                    selectedPart={selectedOpenxPart}
+                    onUpdateStyle={updateOpenxStyle}
+                    onUpdateFont={updateOpenxFont}
+                  />
+                </div>
               </>
             )}
           </div>
-
-          <CardPreviewPanel
-            canvasRef={canvasRef}
-            onSavePng={savePng}
-            selectedOpenxPart={selectedOpenxPart}
-            onSelectOpenxPart={setSelectedOpenxPart}
-            canEditStyle={!isSelectStep}
-            canSave={!isSelectStep}
-          />
         </section>
       </div>
     </main>

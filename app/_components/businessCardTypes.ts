@@ -23,11 +23,20 @@ export type CardContentKey =
 
 export type CardContentVisibility = Record<CardContentKey, boolean>;
 
-export type LogoPresetId = "openx" | "wordmark" | "square" | "custom";
+export type LogoPresetId = "openx" | "kcst" | "hellobell" | "custom";
 
 export type LogoPreset = {
   id: LogoPresetId;
   name: string;
+  src?: string;
+};
+
+export type SponsorLogoPresetId = "hostCompanyLogos";
+
+export type SponsorLogoPreset = {
+  id: SponsorLogoPresetId;
+  name: string;
+  src: string;
 };
 
 export type FontStyle = {
@@ -53,10 +62,10 @@ export type OpenxCardStyle = {
 
 export type OpenxEditablePart =
   | "background"
-  | "border"
-  | "logo"
-  | "sponsorImage"
   | "name"
   | "role"
-  | "contact"
-  | "website";
+  | "phone"
+  | "fax"
+  | "email"
+  | "website"
+  | "address";

@@ -10,13 +10,11 @@ type ContentSelectorProps = {
   selectedLogoPreset: LogoPresetId;
   onToggleContent: (key: CardContentKey, enabled: boolean) => void;
   onSelectLogoPreset: (presetId: LogoPresetId) => void;
+  onNext: () => void;
 };
 
 const contentKeys: CardContentKey[] = [
   "sponsorImage",
-  "name",
-  "role",
-  "logo",
   "phone",
   "fax",
   "email",
@@ -29,39 +27,22 @@ export const ContentSelector = ({
   selectedLogoPreset,
   onToggleContent,
   onSelectLogoPreset,
+  onNext,
 }: ContentSelectorProps) => (
-  <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-    <h2 className="text-lg font-bold">내용 선택</h2>
-    <div className="mt-4 grid gap-2">
-      {contentKeys.map((key) => (
-        <label
-          key={key}
-          className="flex min-h-10 items-center gap-3 rounded-md border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:border-teal-400"
-        >
-          <input
-            type="checkbox"
-            checked={visibility[key]}
-            onChange={(event) => onToggleContent(key, event.target.checked)}
-            className="h-4 w-4 accent-teal-600"
-          />
-          <span>{contentLabels[key]}</span>
-        </label>
-      ))}
-    </div>
-
+  <div className="flex min-h-0 flex-1 flex-col rounded-[30px] border border-slate-200 bg-white p-5 shadow-sm">
+    <h2 className="text-lg text-main text-center">로고 이미지</h2>
     {visibility.logo ? (
-      <div className="mt-4 grid gap-2 border-t border-slate-200 pt-4">
-        <h3 className="text-sm font-bold text-slate-800">로고 이미지 선택</h3>
-        <div className="grid grid-cols-2 gap-2">
+      <div className="mt-4 grid gap-2 border-slate-200">
+        <div className="grid grid-cols-4 gap-3">
           {logoPresets.map((preset) => (
             <button
               key={preset.id}
               type="button"
               onClick={() => onSelectLogoPreset(preset.id)}
-              className={`h-10 rounded-md border px-3 text-sm font-bold transition ${
+              className={`h-14 rounded-md border px-3 text-sm transition ${
                 selectedLogoPreset === preset.id
-                  ? "border-teal-500 bg-teal-50 text-teal-700"
-                  : "border-slate-200 bg-white text-slate-700 hover:border-slate-400"
+                  ? "border-main text-main font-bold"
+                  : "border-[#F1F5F9] bg-white text-sub hover:border-slate-400"
               }`}
             >
               {preset.name}
@@ -70,5 +51,33 @@ export const ContentSelector = ({
         </div>
       </div>
     ) : null}
+    <div className="mt-5 grid min-h-0 flex-1 grid-cols-2 auto-rows-fr gap-3">
+      {contentKeys.map((key) => {
+        const isVisible = visibility[key];
+
+        return (
+          <button
+            key={key}
+            type="button"
+            aria-pressed={isVisible}
+            onClick={() => onToggleContent(key, !isVisible)}
+            className={`min-h-16 rounded-md border px-3 py-3 text-sm transition text-sub ${
+              isVisible
+                ? "border-main text-main font-bold"
+                : "border-[#F1F5F9] bg-white text-sub hover:border-slate-400"
+            }`}
+          >
+            {contentLabels[key]}
+          </button>
+        );
+      })}
+    </div>
+    <button
+      type="button"
+      onClick={onNext}
+      className="mt-5 h-14 w-full rounded-[50px] bg-main px-5 font-bold text-white transition hover:bg-[#4D9ECC]"
+    >
+      다음
+    </button>
   </div>
 );

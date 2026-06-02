@@ -37,13 +37,13 @@ type ColorInputProps = {
 
 const partLabels: Record<OpenxEditablePart, string> = {
   background: "배경",
-  border: "테두리",
-  logo: "로고",
-  sponsorImage: "주관사 이미지",
   name: "이름",
   role: "직책",
-  contact: "연락처",
-  website: "웹사이트",
+  phone: "폰 번호",
+  fax: "FAX",
+  email: "이메일",
+  website: "사이트 주소",
+  address: "주소",
 };
 
 const toNumber = (value: string, fallback: number) => {
@@ -131,6 +131,20 @@ export const OpenxStyleForm = ({
   onUpdateStyle,
   onUpdateFont,
 }: OpenxStyleFormProps) => {
+  const renderContactControls = () => (
+    <div className="grid gap-3">
+      <ColorInput
+        label="Text color"
+        value={style.secondaryColor}
+        onChange={(value) => onUpdateStyle("secondaryColor", value)}
+      />
+      <FontControls
+        font={style.contact}
+        onChange={(fontKey, value) => onUpdateFont("contact", fontKey, value)}
+      />
+    </div>
+  );
+
   const renderControls = () => {
     if (selectedPart === "background") {
       return (
@@ -142,82 +156,13 @@ export const OpenxStyleForm = ({
       );
     }
 
-    if (selectedPart === "border") {
-      return (
-        <div className="grid gap-3 sm:grid-cols-2">
-          <ColorInput
-            label="Border color"
-            value={style.borderColor}
-            onChange={(value) => onUpdateStyle("borderColor", value)}
-          />
-          <NumberInput
-            label="Border width"
-            value={style.borderWidth}
-            min={0}
-            max={20}
-            onChange={(value) => onUpdateStyle("borderWidth", value)}
-          />
-        </div>
-      );
-    }
-
-    if (selectedPart === "logo") {
-      return (
-        <div className="grid gap-3 sm:grid-cols-2">
-          <NumberInput
-            label="Logo size"
-            value={style.logoSize}
-            min={24}
-            max={180}
-            onChange={(value) => onUpdateStyle("logoSize", value)}
-          />
-          <ColorInput
-            label="Logo background"
-            value={style.logoBackground}
-            onChange={(value) => onUpdateStyle("logoBackground", value)}
-          />
-          <ColorInput
-            label="Logo text"
-            value={style.logoColor}
-            onChange={(value) => onUpdateStyle("logoColor", value)}
-          />
-        </div>
-      );
-    }
-
-    if (selectedPart === "sponsorImage") {
-      return (
-        <div className="grid gap-3 sm:grid-cols-2">
-          <ColorInput
-            label="Border color"
-            value={style.borderColor}
-            onChange={(value) => onUpdateStyle("borderColor", value)}
-          />
-          <ColorInput
-            label="Text color"
-            value={style.primaryColor}
-            onChange={(value) => onUpdateStyle("primaryColor", value)}
-          />
-        </div>
-      );
-    }
-
-    if (selectedPart === "contact") {
-      return (
-        <div className="grid gap-3">
-          <ColorInput
-            label="Text color"
-            value={style.secondaryColor}
-            onChange={(value) => onUpdateStyle("secondaryColor", value)}
-          />
-          <FontControls
-            font={style.contact}
-            onChange={(fontKey, value) =>
-              onUpdateFont("contact", fontKey, value)
-            }
-          />
-        </div>
-      );
+    if (
+      selectedPart === "phone" ||
+      selectedPart === "fax" ||
+      selectedPart === "email" ||
+      selectedPart === "address"
+    ) {
+      return renderContactControls();
     }
 
     if (selectedPart === "website") {

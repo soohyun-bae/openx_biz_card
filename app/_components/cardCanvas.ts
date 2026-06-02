@@ -1,7 +1,9 @@
 import {
   cardSize,
   initialContentVisibility,
+  logoPresets,
   openxDefaultStyle,
+  sponsorLogoPresets,
 } from "./businessCardData";
 import type {
   CardContentVisibility,
@@ -102,6 +104,12 @@ const drawVisibleText = (
   drawStyledText(context, text, x, y, color, font);
 };
 
+const profileLayout = {
+  nameX: 72,
+  baselineY: 210,
+  roleGap: 36,
+};
+
 const loadLogo = (src: string) =>
   new Promise<HTMLImageElement | null>((resolve) => {
     if (!src) {
@@ -147,7 +155,12 @@ const drawLogoText = (
 ) => {
   context.fillStyle = color;
   context.textAlign = "center";
-  const letterSpacing = setFont(context, Math.min(width, height) * 0.36, 800, 4);
+  const letterSpacing = setFont(
+    context,
+    Math.min(width, height) * 0.36,
+    800,
+    4,
+  );
   drawText(
     context,
     text.slice(0, 2).toUpperCase(),
@@ -180,9 +193,7 @@ const drawLogoBox = (
   context.restore();
 };
 
-const mergeOpenxStyle = (
-  style?: Partial<OpenxCardStyle>,
-): OpenxCardStyle => ({
+const mergeOpenxStyle = (style?: Partial<OpenxCardStyle>): OpenxCardStyle => ({
   ...openxDefaultStyle,
   ...style,
   name: {
@@ -211,28 +222,35 @@ const drawOpenxBackground = (
   context.fillRect(0, 0, cardSize.width, cardSize.height);
 };
 
-const drawOpenxBorder = (
-  context: CanvasRenderingContext2D,
-  style: OpenxCardStyle,
-) => {
-  context.strokeStyle = style.borderColor;
-  context.lineWidth = style.borderWidth;
-  context.strokeRect(56, 56, 938, 488);
-};
-
 const drawOpenxLogo = (
   context: CanvasRenderingContext2D,
   logo: HTMLImageElement | null,
   style: OpenxCardStyle,
   logoPreset: LogoPresetId,
 ) => {
-  const x = 72;
-  const y = 64;
+  const x = logoPreset === "kcst" ? 65 : 72;
+  const y = logoPreset === "kcst" ? -95 : -20;
+  const logoSize =
+    logoPreset === "kcst" ? style.logoSize * 1.6 : style.logoSize;
+
+  if (logo) {
+    drawLogoBox(
+      context,
+      logo,
+      "OPENX",
+      x,
+      y,
+      logoSize,
+      style.logoBackground,
+      style.logoColor,
+    );
+    return;
+  }
 
   if (logoPreset === "custom") {
     drawLogoBox(
       context,
-      logo,
+      null,
       "OPENX",
       x,
       y,
@@ -247,7 +265,7 @@ const drawOpenxLogo = (
   context.fillStyle = style.logoBackground;
   context.strokeStyle = style.logoBackground;
 
-  if (logoPreset === "wordmark") {
+  if (logoPreset === "kcst") {
     context.textAlign = "left";
     setFont(context, Math.round(style.logoSize * 0.34), 800, 1);
     drawText(context, "OPENX", x, y + style.logoSize * 0.52, 1);
@@ -256,11 +274,11 @@ const drawOpenxLogo = (
     return;
   }
 
-  if (logoPreset === "square") {
+  if (logoPreset === "hellobell") {
     context.fillRect(x, y, style.logoSize, style.logoSize);
     drawLogoText(
       context,
-      "OX",
+      "HelloBell",
       x,
       y,
       style.logoSize,
@@ -295,12 +313,22 @@ const drawOpenxProfile = (
   style: OpenxCardStyle,
   visibility: CardContentVisibility,
 ) => {
+  const roleX = visibility.name
+    ? profileLayout.nameX +
+      measureText(
+        context,
+        data.name,
+        setFont(context, style.name.size, style.name.weight, style.name.letterSpacing),
+      ) +
+      profileLayout.roleGap
+    : profileLayout.nameX;
+
   drawVisibleText(
     context,
     visibility.name,
     data.name,
-    72,
-    238,
+    profileLayout.nameX,
+    profileLayout.baselineY,
     style.primaryColor,
     style.name,
   );
@@ -308,8 +336,8 @@ const drawOpenxProfile = (
     context,
     visibility.role,
     data.role,
-    288,
-    238,
+    roleX,
+    profileLayout.baselineY,
     style.primaryColor,
     style.role,
   );
@@ -321,26 +349,50 @@ const drawOpenxContact = (
   style: OpenxCardStyle,
   visibility: CardContentVisibility,
 ) => {
+  const markColor = "#DBAD24";
+  const labelX = 72;
+  const markX = 104;
+  const valueX = 132;
+  const rowY = 350;
+  const rowGap = 38;
+  const addressValueFont = {
+    ...style.contact,
+    weight: 400,
+  };
   const rows = [
     {
-      key: "address",
-      value: data.address,
-    },
-    {
-      key: "website",
-      value: data.website,
-    },
-    {
-      key: "email",
-      value: data.email,
+      key: "phone",
+      label: "T",
+      value: data.phone,
+      font: addressValueFont,
     },
     {
       key: "fax",
-      value: `F ${data.fax}`,
+      label: "F",
+      value: data.fax,
+      font: addressValueFont,
     },
     {
-      key: "phone",
-      value: `M ${data.phone}`,
+      key: "email",
+      label: "E",
+      value: data.email,
+      font: addressValueFont,
+    },
+    {
+      key: "website",
+      label: "H",
+      value: data.website,
+      font: {
+        ...style.website,
+        size: addressValueFont.size,
+        weight: addressValueFont.weight,
+      },
+    },
+    {
+      key: "address",
+      label: "",
+      value: data.address,
+      font: addressValueFont,
     },
   ] as const;
 
@@ -349,19 +401,87 @@ const drawOpenxContact = (
       return;
     }
 
+    const y = rowY + index * rowGap;
+
+    if (!row.label) {
+      drawStyledText(
+        context,
+        row.value,
+        labelX,
+        y,
+        style.secondaryColor,
+        row.font,
+      );
+      return;
+    }
+
+    drawStyledText(context, row.label, labelX, y, style.secondaryColor, {
+      ...style.contact,
+      weight: 700,
+    });
+    drawStyledText(context, "x", markX, y, markColor, {
+      ...style.contact,
+      weight: 400,
+    });
     drawStyledText(
       context,
       row.value,
-      72,
-      386 + index * 38,
+      valueX,
+      y,
       style.secondaryColor,
-      row.key === "website" ? style.website : style.contact,
+      row.font,
     );
   });
 };
 
+const drawOpenxAwardStrip = (
+  context: CanvasRenderingContext2D,
+  awardLogo: HTMLImageElement | null,
+  style: OpenxCardStyle,
+) => {
+  const stripColor = "#D1D6DF";
+  const stripHeight = 60;
+  const tailHeight = 10;
+  const stripTop = cardSize.height - stripHeight;
+  const stripCenterY = stripTop + 32;
+  const tailTop = cardSize.height - tailHeight;
+  const curveStartX = cardSize.width * (2 / 3);
+  const curveEndX = curveStartX + 92;
+
+  context.save();
+  context.fillStyle = stripColor;
+  context.beginPath();
+  context.moveTo(0, cardSize.height);
+  context.lineTo(0, stripTop);
+  context.lineTo(curveStartX, stripTop);
+  context.bezierCurveTo(
+    curveStartX + 42,
+    stripTop,
+    curveStartX + 48,
+    tailTop,
+    curveEndX,
+    tailTop,
+  );
+  context.lineTo(cardSize.width, tailTop);
+  context.lineTo(cardSize.width, cardSize.height);
+  context.closePath();
+  context.fill();
+
+  if (awardLogo) {
+    drawImageNatural(context, awardLogo, 85, stripCenterY, 86, 28);
+  }
+
+  context.fillStyle = style.primaryColor;
+  context.textAlign = "left";
+  context.textBaseline = "middle";
+  setFont(context, 20, 700, 0);
+  drawText(context, "고용노동부 장관상 수상 기업", 110, stripTop + 32);
+  context.restore();
+};
+
 const drawOpenxSponsor = (
   context: CanvasRenderingContext2D,
+  sponsorLogo: HTMLImageElement | null,
   style: OpenxCardStyle,
   visibility: CardContentVisibility,
 ) => {
@@ -370,28 +490,49 @@ const drawOpenxSponsor = (
   }
 
   context.save();
-  context.textAlign = "center";
+  const sponsorX = 750;
+  const sponsorImageY = 90;
+  const sponsorImageMaxWidth = 260;
+  const sponsorImageMaxHeight = 48;
+
+  context.textAlign = "left";
   context.strokeStyle = style.borderColor;
   context.fillStyle = "#ffffff";
   context.lineWidth = 2;
-  context.strokeRect(772, 72, 206, 86);
   context.fillStyle = style.primaryColor;
-  setFont(context, 21, 800, 1);
-  drawText(
-    context,
-    "주관사",
-    875,
-    112,
-    1,
-  );
+  setFont(context, 14, 700, 0.8);
+  drawText(context, "브랜드어워즈공식주관사", sponsorX, 80, 0.8);
+
+  if (sponsorLogo) {
+    const ratio = Math.min(
+      1,
+      sponsorImageMaxWidth / sponsorLogo.width,
+      sponsorImageMaxHeight / sponsorLogo.height,
+    );
+    const drawWidth = sponsorLogo.width * ratio;
+    const drawHeight = sponsorLogo.height * ratio;
+
+    context.drawImage(
+      sponsorLogo,
+      sponsorX,
+      sponsorImageY,
+      drawWidth,
+      drawHeight,
+    );
+    context.restore();
+    return;
+  }
+
   setFont(context, 20, 700, 2);
-  drawText(context, "OPENX", 875, 142, 2);
+  drawText(context, "OPENX", sponsorX, 134, 2);
   context.restore();
 };
 
 const drawOpenxTemplate = (
   context: CanvasRenderingContext2D,
   logo: HTMLImageElement | null,
+  sponsorLogo: HTMLImageElement | null,
+  awardLogo: HTMLImageElement | null,
   data: CardData,
   styleInput?: Partial<OpenxCardStyle>,
   visibilityInput?: CardContentVisibility,
@@ -401,13 +542,13 @@ const drawOpenxTemplate = (
   const visibility = visibilityInput ?? initialContentVisibility;
 
   drawOpenxBackground(context, style);
-  drawOpenxBorder(context, style);
   if (visibility.logo) {
     drawOpenxLogo(context, logo, style, logoPreset);
   }
-  drawOpenxSponsor(context, style, visibility);
+  drawOpenxSponsor(context, sponsorLogo, style, visibility);
   drawOpenxProfile(context, data, style, visibility);
   drawOpenxContact(context, data, style, visibility);
+  drawOpenxAwardStrip(context, awardLogo, style);
 };
 
 export const drawCard = async (
@@ -420,8 +561,21 @@ export const drawCard = async (
     logoPreset?: LogoPresetId;
   },
 ) => {
+  const selectedLogoPreset = logoPresets.find(
+    (preset) => preset.id === styles?.logoPreset,
+  );
+  const presetLogoSrc =
+    styles?.logoPreset === "custom" ? data.logo : selectedLogoPreset?.src;
   const logo =
-    styles?.logoPreset === "custom" ? await loadLogo(data.logo) : null;
+    styles?.content?.logo === false
+      ? null
+      : await loadLogo(presetLogoSrc ?? "");
+  const selectedSponsorLogoPreset = sponsorLogoPresets[0];
+  const sponsorLogo =
+    styles?.content?.sponsorImage === false
+      ? null
+      : await loadLogo(selectedSponsorLogoPreset?.src ?? "");
+  const awardLogo = await loadLogo("/logos/biz-card-bottom-logo.png");
 
   context.save();
   context.scale(scale, scale);
@@ -431,6 +585,8 @@ export const drawCard = async (
   drawOpenxTemplate(
     context,
     logo,
+    sponsorLogo,
+    awardLogo,
     data,
     styles?.openx,
     styles?.content,

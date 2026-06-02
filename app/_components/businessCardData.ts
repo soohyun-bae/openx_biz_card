@@ -5,6 +5,7 @@ import type {
   FieldKey,
   LogoPreset,
   OpenxCardStyle,
+  SponsorLogoPreset,
 } from "./businessCardTypes";
 
 export const cardSize = {
@@ -31,18 +32,18 @@ export const initialData: CardData = {
   fax: "02-1234-5678",
   email: "hello@openx.kr",
   website: "openx.kr",
-  address: "Seoul, Korea",
+  address: "서울시 마포구 성암로330, DMC첨단산업센터 B동 808호",
 };
 
 export const openxDefaultStyle: OpenxCardStyle = {
   backgroundColor: "#fafafa",
   borderColor: "#111827",
   borderWidth: 3,
-  logoSize: 118,
+  logoSize: 240,
   logoBackground: "#111827",
   logoColor: "#ffffff",
   primaryColor: "#111827",
-  secondaryColor: "#334155",
+  secondaryColor: "#111827",
   name: {
     size: 40,
     weight: 700,
@@ -93,17 +94,28 @@ export const logoPresets: LogoPreset[] = [
   {
     id: "openx",
     name: "OPENX",
+    src: "/logos/openx-logo.png",
   },
   {
-    id: "wordmark",
-    name: "Wordmark",
+    id: "kcst",
+    name: "kcst",
+    src: "/logos/kcst-logo.png",
   },
   {
-    id: "square",
-    name: "Square",
+    id: "hellobell",
+    name: "HelloBell",
+    src: "/logos/hellobell-logo.png",
   },
   {
     id: "custom",
     name: "직접 업로드",
+  },
+];
+
+export const sponsorLogoPresets: SponsorLogoPreset[] = [
+  {
+    id: "hostCompanyLogos",
+    name: "Host Company Logos",
+    src: "/logos/host-company-logos.png",
   },
 ];
