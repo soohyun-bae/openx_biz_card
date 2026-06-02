@@ -14,7 +14,7 @@ type OpenxStyleFormProps = {
   ) => void;
 };
 
-type FontStyleKey = "name" | "role" | "contact" | "website";
+type FontStyleKey = OpenxEditablePart;
 
 type NumberInputProps = {
   label: string;
@@ -100,32 +100,7 @@ export const OpenxStyleForm = ({
   selectedPart,
   onUpdateFont,
 }: OpenxStyleFormProps) => {
-  const renderContactControls = () => (
-    <FontControls
-      font={style.contact}
-      onChange={(fontKey, value) => onUpdateFont("contact", fontKey, value)}
-    />
-  );
-
   const renderControls = () => {
-    if (
-      selectedPart === "phone" ||
-      selectedPart === "fax" ||
-      selectedPart === "email" ||
-      selectedPart === "address"
-    ) {
-      return renderContactControls();
-    }
-
-    if (selectedPart === "website") {
-      return (
-        <FontControls
-          font={style.website}
-          onChange={(fontKey, value) => onUpdateFont("website", fontKey, value)}
-        />
-      );
-    }
-
     return (
       <FontControls
         font={style[selectedPart]}

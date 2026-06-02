@@ -196,7 +196,7 @@ const buildHotspots = (
       key: "website",
       part: "website",
       label: "Website",
-      x: isKcst ? kcstContactLayout.valueX : contactLayout.valueX,
+      x: isKcst ? kcstContactLayout.valueX : contactLayout.labelX,
     },
     {
       key: "address",
@@ -258,13 +258,7 @@ const buildHotspots = (
   }
 
   visibleValueRows.forEach((row, index) => {
-    const font =
-      row.key === "website"
-        ? {
-            ...style.website,
-            size: style.contact.size,
-          }
-        : style.contact;
+    const font = style[row.part];
     const addressOffsetY =
       isKcst && row.key === "address" ? kcstContactLayout.addressOffsetY : 0;
     const baselineY =

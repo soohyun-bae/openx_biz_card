@@ -227,9 +227,25 @@ const mergeOpenxStyle = (style?: Partial<OpenxCardStyle>): OpenxCardStyle => ({
     ...openxDefaultStyle.contact,
     ...style?.contact,
   },
+  phone: {
+    ...openxDefaultStyle.phone,
+    ...style?.phone,
+  },
+  fax: {
+    ...openxDefaultStyle.fax,
+    ...style?.fax,
+  },
+  email: {
+    ...openxDefaultStyle.email,
+    ...style?.email,
+  },
   website: {
     ...openxDefaultStyle.website,
     ...style?.website,
+  },
+  address: {
+    ...openxDefaultStyle.address,
+    ...style?.address,
   },
 });
 
@@ -354,8 +370,8 @@ const drawKcstLogo = (
   style: OpenxCardStyle,
 ) => {
   const x = 65;
-  const y = -95;
-  const logoSize = style.logoSize * 1.6;
+  const y = -130;
+  const logoSize = style.logoSize * 2;
 
   context.save();
 
@@ -485,44 +501,36 @@ const drawOpenxContact = (
   visibility: CardContentVisibility,
 ) => {
   const markColor = "#DBAD24";
-  const addressValueFont = {
-    ...style.contact,
-    weight: 400,
-  };
   const rows = [
     {
       key: "phone",
       label: "T",
       value: data.phone,
-      font: addressValueFont,
+      font: style.phone,
     },
     {
       key: "fax",
       label: "F",
       value: data.fax,
-      font: addressValueFont,
+      font: style.fax,
     },
     {
       key: "email",
       label: "E",
       value: data.email,
-      font: addressValueFont,
+      font: style.email,
     },
     {
       key: "website",
       label: "",
       value: data.website,
-      font: {
-        ...style.website,
-        size: addressValueFont.size,
-        weight: addressValueFont.weight,
-      },
+      font: style.website,
     },
     {
       key: "address",
       label: "",
       value: data.address,
-      font: addressValueFont,
+      font: style.address,
     },
   ] as const;
   const visibleRows = rows.filter((row) => visibility[row.key]);
@@ -552,12 +560,12 @@ const drawOpenxContact = (
       y,
       style.secondaryColor,
       {
-        ...style.contact,
+        ...row.font,
         weight: 700,
       },
     );
     drawStyledText(context, "x", contactLayout.markX, y, markColor, {
-      ...style.contact,
+      ...row.font,
       weight: 400,
     });
     drawStyledText(
@@ -585,12 +593,8 @@ const drawKcstContact = (
     weight: 700,
     letterSpacing: 0,
   };
-  const addressValueFont = {
-    ...style.contact,
-    weight: 400,
-  };
   const instituteFont = {
-    ...style.contact,
+    ...style.address,
     weight: 600,
   };
   const rows = [
@@ -598,29 +602,25 @@ const drawKcstContact = (
       key: "phone",
       label: "T",
       value: data.phone,
-      font: addressValueFont,
+      font: style.phone,
     },
     {
       key: "fax",
       label: "F",
       value: data.fax,
-      font: addressValueFont,
+      font: style.fax,
     },
     {
       key: "email",
       label: "E",
       value: data.email,
-      font: addressValueFont,
+      font: style.email,
     },
     {
       key: "website",
       label: "H",
       value: data.website,
-      font: {
-        ...style.website,
-        size: addressValueFont.size,
-        weight: addressValueFont.weight,
-      },
+      font: style.website,
     },
     {
       key: "address",
@@ -632,7 +632,7 @@ const drawKcstContact = (
       key: "address",
       label: "",
       value: data.address,
-      font: addressValueFont,
+      font: style.address,
     },
   ] as const;
   const visibleRows = rows.filter((row) => visibility[row.key]);

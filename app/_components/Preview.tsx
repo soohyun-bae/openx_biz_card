@@ -22,7 +22,7 @@ import type {
   OpenxEditablePart,
 } from "./businessCardTypes";
 
-type OpenxFontStyleKey = "name" | "role" | "contact" | "website";
+type OpenxFontStyleKey = OpenxEditablePart;
 type EditorStep = "select" | "edit";
 
 export default function Preview() {

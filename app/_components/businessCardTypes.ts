@@ -58,7 +58,11 @@ export type OpenxCardStyle = {
   name: FontStyle;
   role: FontStyle;
   contact: FontStyle;
+  phone: FontStyle;
+  fax: FontStyle;
+  email: FontStyle;
   website: FontStyle;
+  address: FontStyle;
 };
 
 export type OpenxEditablePart =

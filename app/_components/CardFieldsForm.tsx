@@ -10,7 +10,7 @@ import type {
   OpenxEditablePart,
 } from "./businessCardTypes";
 
-type OpenxFontStyleKey = "name" | "role" | "contact" | "website";
+type OpenxFontStyleKey = OpenxEditablePart;
 
 type CardFieldsFormProps = {
   data: CardData;

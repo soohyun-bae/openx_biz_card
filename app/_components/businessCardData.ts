@@ -57,9 +57,29 @@ export const openxDefaultStyle: OpenxCardStyle = {
     weight: 500,
     letterSpacing: 0,
   },
+  phone: {
+    size: 28,
+    weight: 500,
+    letterSpacing: 0,
+  },
+  fax: {
+    size: 28,
+    weight: 500,
+    letterSpacing: 0,
+  },
+  email: {
+    size: 28,
+    weight: 500,
+    letterSpacing: 0,
+  },
   website: {
-    size: 26,
-    weight: 600,
+    size: 28,
+    weight: 500,
+    letterSpacing: 0,
+  },
+  address: {
+    size: 28,
+    weight: 500,
     letterSpacing: 0,
   },
 };
