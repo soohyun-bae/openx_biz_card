@@ -715,7 +715,6 @@ const drawKcstContact = (
 
 const drawOpenxAwardStrip = (
   context: CanvasRenderingContext2D,
-  awardLogo: HTMLImageElement | null,
   style: OpenxCardStyle,
   showContent: boolean,
 ) => {
@@ -750,17 +749,6 @@ const drawOpenxAwardStrip = (
   context.lineTo(cardSize.width, cardSize.height);
   context.closePath();
   context.fill();
-
-  if (awardLogo) {
-    drawImageNatural(
-      context,
-      awardLogo,
-      cardContentMargin + 20,
-      stripCenterY,
-      70,
-      30,
-    );
-  }
 
   context.fillStyle = "#575757";
   context.textAlign = "left";
@@ -827,7 +815,6 @@ const drawOpenxTemplate = (
   context: CanvasRenderingContext2D,
   logo: HTMLImageElement | null,
   sponsorLogo: HTMLImageElement | null,
-  awardLogo: HTMLImageElement | null,
   data: CardData,
   styleInput?: Partial<OpenxCardStyle>,
   visibilityInput?: CardContentVisibility,
@@ -843,7 +830,6 @@ const drawOpenxTemplate = (
   drawOpenxSponsor(context, sponsorLogo, style, visibility);
   drawOpenxProfile(context, data, style, visibility);
   drawOpenxContact(context, data, style, visibility);
-  drawOpenxAwardStrip(context, awardLogo, style, visibility.awardStrip);
 };
 
 const drawKcstTemplate = (
@@ -894,12 +880,8 @@ export const drawCard = async (
     templateId === "kcst" || styles?.content?.sponsorImage === false
       ? null
       : await loadLogo(selectedSponsorLogoPreset?.src ?? "");
-  const awardLogo =
-    templateId === "kcst" || styles?.content?.awardStrip === false
-      ? null
-      : await loadLogo("/logos/biz-card-bottom-logo.png");
   const kcstBackground =
-    templateId === "kcst" ? await loadLogo("/logos/kcst-bg.png") : null;
+    templateId === "kcst" ? await loadLogo("/logos/.png") : null;
 
   context.save();
   context.scale(scale, scale);
@@ -920,7 +902,6 @@ export const drawCard = async (
       context,
       logo,
       sponsorLogo,
-      awardLogo,
       data,
       styles?.openx,
       styles?.content,
