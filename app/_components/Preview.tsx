@@ -251,7 +251,7 @@ export default function Preview() {
             selectedOpenxPart={selectedOpenxPart}
             onSelectOpenxPart={setSelectedOpenxPart}
             canEditStyle={!isSelectStep}
-            canSave={!isSelectStep}
+            canSave={false}
           />
 
           <div className="flex w-full max-w-[703px] flex-col gap-[20px] lg:h-[var(--editor-panel-height)] lg:overflow-hidden">
@@ -306,6 +306,7 @@ export default function Preview() {
                   onUpdateLogoOffsetY={updateLogoOffsetY}
                   onResetLogoSize={resetLogoSize}
                   onBackToContentSelect={() => setStep("select")}
+                  onSavePng={savePng}
                 />
               </>
             )}

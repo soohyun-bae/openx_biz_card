@@ -47,7 +47,7 @@ export const ContentSelector = ({
                 key={preset.id}
                 type="button"
                 onClick={() => onSelectLogoPreset(preset.id)}
-                className={`flex h-20 items-center justify-center rounded-[20px] border px-3 text-sm transition ${
+                className={`flex h-20 items-center justify-center rounded-[20px] border px-3 text-center text-sm leading-tight transition ${
                   selectedLogoPreset === preset.id
                     ? "border-main text-main font-bold"
                     : "border-[#F1F5F9] bg-white text-sub hover:border-slate-400"
@@ -78,7 +78,7 @@ export const ContentSelector = ({
               type="button"
               aria-pressed={isVisible}
               onClick={() => onToggleContent(key, !isVisible)}
-              className={`rounded-[20px] border px-3 py-2 text-sm transition text-sub ${
+              className={`flex items-center justify-center rounded-[20px] border px-3 py-2 text-center text-sm leading-tight transition text-sub ${
                 isVisible
                   ? "border-main text-main font-bold"
                   : "border-[#F1F5F9] bg-white text-sub hover:border-slate-400"
