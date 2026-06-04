@@ -40,6 +40,15 @@ type Bounds = {
   height: number;
 };
 
+type ImageDimensions = {
+  width: number;
+  height: number;
+};
+
+type LoadedImageDimensions = ImageDimensions & {
+  src: string;
+};
+
 type HotspotValueKey = "phone" | "fax" | "email" | "website" | "address";
 
 type HotspotValueRow = {
@@ -183,12 +192,38 @@ const getHotspotStyle = ({ x, y, width, height }: Bounds) => ({
   height: `${(height / cardSize.height) * 100}%`,
 });
 
+const getContainedImageBounds = (
+  image: ImageDimensions,
+  x: number,
+  y: number,
+  maxWidth: number,
+  maxHeight: number,
+): Bounds => {
+  const ratio = Math.min(1, maxWidth / image.width, maxHeight / image.height);
+  const drawWidth = image.width * ratio;
+  const drawHeight = image.height * ratio;
+  const drawX = x + (maxWidth - drawWidth) / 2;
+  const drawY = y + (maxHeight - drawHeight) / 2;
+  const visibleX = Math.max(0, drawX);
+  const visibleY = Math.max(0, drawY);
+  const visibleRight = Math.min(cardSize.width, drawX + drawWidth);
+  const visibleBottom = Math.min(cardSize.height, drawY + drawHeight);
+
+  return {
+    x: visibleX,
+    y: visibleY,
+    width: Math.max(1, visibleRight - visibleX),
+    height: Math.max(1, visibleBottom - visibleY),
+  };
+};
+
 const buildHotspots = (
   data: CardData,
   style: OpenxCardStyle,
   visibility: CardContentVisibility,
   selectedLogoPreset: LogoPresetId,
   useCanvasMeasurement: boolean,
+  customLogoDimensions: ImageDimensions | null,
 ): Hotspot[] => {
   const isKcst = selectedLogoPreset === "kcst";
   const valueRows: HotspotValueRow[] = [
@@ -278,6 +313,31 @@ const buildHotspots = (
     });
   }
 
+  if (visibility.logo && selectedLogoPreset === "custom" && data.logo) {
+    const logoX = cardContentMargin;
+    const logoY = -18 + style.logoOffsetY;
+    const logoBounds = customLogoDimensions
+      ? getContainedImageBounds(
+          customLogoDimensions,
+          logoX,
+          logoY,
+          style.logoSize,
+          style.logoSize,
+        )
+      : {
+          x: logoX,
+          y: Math.max(0, logoY),
+          width: style.logoSize,
+          height: Math.max(1, style.logoSize + logoY),
+        };
+
+    hotspots.push({
+      part: "logo",
+      label: "Logo",
+      bounds: logoBounds,
+    });
+  }
+
   visibleValueRows.forEach((row, index) => {
     const font = style[row.part];
     const addressOffsetY =
@@ -318,15 +378,23 @@ export const CardPreviewPanel = ({
   canSave,
 }: CardPreviewPanelProps) => {
   const [canMeasureText, setCanMeasureText] = useState(false);
+  const [loadedCustomLogoDimensions, setLoadedCustomLogoDimensions] =
+    useState<LoadedImageDimensions | null>(null);
   const [visibleLabelPart, setVisibleLabelPart] =
     useState<OpenxEditablePart | null>(null);
   const labelTimeoutRef = useRef<number | null>(null);
+  const customLogoDimensions =
+    selectedLogoPreset === "custom" &&
+    loadedCustomLogoDimensions?.src === data.logo
+      ? loadedCustomLogoDimensions
+      : null;
   const hotspots = buildHotspots(
     data,
     style,
     visibility,
     selectedLogoPreset,
     canMeasureText,
+    customLogoDimensions,
   );
 
   useEffect(() => {
@@ -343,6 +411,32 @@ export const CardPreviewPanel = ({
     },
     [],
   );
+
+  useEffect(() => {
+    if (selectedLogoPreset !== "custom" || !data.logo) {
+      return;
+    }
+
+    let isActive = true;
+    const image = new Image();
+
+    image.onload = () => {
+      if (!isActive) {
+        return;
+      }
+
+      setLoadedCustomLogoDimensions({
+        src: data.logo,
+        width: image.naturalWidth || image.width,
+        height: image.naturalHeight || image.height,
+      });
+    };
+    image.src = data.logo;
+
+    return () => {
+      isActive = false;
+    };
+  }, [data.logo, selectedLogoPreset]);
 
   const selectHotspot = (part: OpenxEditablePart) => {
     onSelectOpenxPart(part);

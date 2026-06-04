@@ -15,6 +15,10 @@ export const cardSize = {
 
 export const cardContentMargin = 60;
 
+export const hellobellWebsite = "www.hellobellrent.co.kr/";
+export const kcstEmail = "hello@kcst.co.kr";
+export const kcstWebsite = "www.kcsta.co.kr";
+
 export const fieldLabels: Record<FieldKey, string> = {
   logo: "로고",
   name: "이름",
@@ -34,12 +38,13 @@ export const initialData: CardData = {
   fax: "02-1234-5678",
   email: "hello@openxgroup.co.kr",
   website: "www.openxgroup.co.kr",
-  address: "서울시 마포구 성암로330, DMC첨단산업센터 B동 808호",
+  address: "서울시 마포구 성암로330, DMC첨단산업센터 8층 808호",
 };
 
 export const openxDefaultStyle: OpenxCardStyle = {
   backgroundColor: "#fafafa",
-  logoSize: 194,
+  logoSize: 200,
+  logoOffsetY: 0,
   logoBackground: "#111827",
   logoColor: "#ffffff",
   primaryColor: "#111827",

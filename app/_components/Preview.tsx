@@ -6,8 +6,11 @@ import { CardPreviewPanel } from "./CardPreviewPanel";
 import { drawCard } from "./cardCanvas";
 import {
   cardSize,
+  hellobellWebsite,
   initialContentVisibility,
   initialData,
+  kcstEmail,
+  kcstWebsite,
   openxDefaultStyle,
 } from "./businessCardData";
 import { ContentSelector } from "./ContentSelector";
@@ -22,7 +25,7 @@ import type {
   OpenxEditablePart,
 } from "./businessCardTypes";
 
-type OpenxFontStyleKey = OpenxEditablePart;
+type OpenxFontStyleKey = Exclude<OpenxEditablePart, "logo">;
 type EditorStep = "select" | "edit";
 
 export default function Preview() {
@@ -39,7 +42,24 @@ export default function Preview() {
     useState<OpenxEditablePart>("name");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isSelectStep = step === "select";
-  const previewData = isSelectStep ? initialData : data;
+  const previewData = useMemo<CardData>(
+    () =>
+      isSelectStep && selectedLogoPreset === "kcst"
+        ? {
+            ...initialData,
+            email: kcstEmail,
+            website: kcstWebsite,
+          }
+        : isSelectStep && selectedLogoPreset === "hellobell"
+          ? {
+              ...initialData,
+              website: hellobellWebsite,
+            }
+        : isSelectStep
+          ? initialData
+          : data,
+    [data, isSelectStep, selectedLogoPreset],
+  );
   const requiredVisibility = useMemo<CardContentVisibility>(
     () => ({
       ...visibility,
@@ -98,6 +118,42 @@ export default function Preview() {
     }));
   };
 
+  const selectLogoPreset = (presetId: LogoPresetId) => {
+    setSelectedLogoPreset(presetId);
+    setData((current) => {
+      if (presetId === "kcst") {
+        return {
+          ...current,
+          email: current.email === initialData.email ? kcstEmail : current.email,
+          website:
+            current.website === initialData.website
+              ? kcstWebsite
+              : current.website,
+        };
+      }
+
+      if (presetId === "hellobell") {
+        return {
+          ...current,
+          website:
+            current.website === initialData.website ||
+            current.website === kcstWebsite
+              ? hellobellWebsite
+              : current.website,
+        };
+      }
+
+      return {
+        ...current,
+        email: current.email === kcstEmail ? initialData.email : current.email,
+        website:
+          current.website === kcstWebsite || current.website === hellobellWebsite
+            ? initialData.website
+            : current.website,
+      };
+    });
+  };
+
   const updateOpenxFont = (
     key: OpenxFontStyleKey,
     fontKey: keyof FontStyle,
@@ -118,6 +174,28 @@ export default function Preview() {
       [key]: {
         ...openxDefaultStyle[key],
       },
+    }));
+  };
+
+  const updateLogoSize = (value: number) => {
+    setOpenxStyle((current) => ({
+      ...current,
+      logoSize: value,
+    }));
+  };
+
+  const resetLogoSize = () => {
+    setOpenxStyle((current) => ({
+      ...current,
+      logoSize: openxDefaultStyle.logoSize,
+      logoOffsetY: openxDefaultStyle.logoOffsetY,
+    }));
+  };
+
+  const updateLogoOffsetY = (value: number) => {
+    setOpenxStyle((current) => ({
+      ...current,
+      logoOffsetY: value,
     }));
   };
 
@@ -209,7 +287,7 @@ export default function Preview() {
                   visibility={requiredVisibility}
                   selectedLogoPreset={selectedLogoPreset}
                   onToggleContent={toggleContent}
-                  onSelectLogoPreset={setSelectedLogoPreset}
+                  onSelectLogoPreset={selectLogoPreset}
                   onNext={() => setStep("edit")}
                 />
               </>
@@ -224,6 +302,9 @@ export default function Preview() {
                   onUpdateField={updateField}
                   onUpdateFont={updateOpenxFont}
                   onResetFont={resetOpenxFont}
+                  onUpdateLogoSize={updateLogoSize}
+                  onUpdateLogoOffsetY={updateLogoOffsetY}
+                  onResetLogoSize={resetLogoSize}
                   onBackToContentSelect={() => setStep("select")}
                 />
               </>

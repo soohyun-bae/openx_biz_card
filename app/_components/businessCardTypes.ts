@@ -51,6 +51,7 @@ export type FontStyle = {
 export type OpenxCardStyle = {
   backgroundColor: string;
   logoSize: number;
+  logoOffsetY: number;
   logoBackground: string;
   logoColor: string;
   primaryColor: string;
@@ -66,6 +67,7 @@ export type OpenxCardStyle = {
 };
 
 export type OpenxEditablePart =
+  | "logo"
   | "name"
   | "role"
   | "phone"

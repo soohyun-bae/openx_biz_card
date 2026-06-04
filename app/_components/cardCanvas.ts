@@ -327,7 +327,10 @@ const drawOpenxLogo = (
   logoPreset: LogoPresetId,
 ) => {
   const x = cardContentMargin;
-  const y = logoPreset === "openx" ? cardContentMargin : -18;
+  const y =
+    logoPreset === "openx"
+      ? cardContentMargin
+      : -18 + (logoPreset === "custom" ? style.logoOffsetY : 0);
   const logoSize = style.logoSize;
 
   if (logoPreset === "openx" && logo) {

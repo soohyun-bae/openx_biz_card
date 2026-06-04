@@ -11,7 +11,7 @@ import type {
   OpenxEditablePart,
 } from "./businessCardTypes";
 
-type OpenxFontStyleKey = OpenxEditablePart;
+type OpenxFontStyleKey = Exclude<OpenxEditablePart, "logo">;
 
 type CardFieldsFormProps = {
   data: CardData;
@@ -26,6 +26,9 @@ type CardFieldsFormProps = {
     value: number,
   ) => void;
   onResetFont: (key: OpenxFontStyleKey) => void;
+  onUpdateLogoSize: (value: number) => void;
+  onUpdateLogoOffsetY: (value: number) => void;
+  onResetLogoSize: () => void;
   onBackToContentSelect: () => void;
 };
 
@@ -50,6 +53,9 @@ export const CardFieldsForm = ({
   onUpdateField,
   onUpdateFont,
   onResetFont,
+  onUpdateLogoSize,
+  onUpdateLogoOffsetY,
+  onResetLogoSize,
   onBackToContentSelect,
 }: CardFieldsFormProps) => {
   const logoInputRef = useRef<HTMLInputElement>(null);
@@ -127,6 +133,9 @@ export const CardFieldsForm = ({
           selectedPart={selectedOpenxPart}
           onUpdateFont={onUpdateFont}
           onResetFont={onResetFont}
+          onUpdateLogoSize={onUpdateLogoSize}
+          onUpdateLogoOffsetY={onUpdateLogoOffsetY}
+          onResetLogoSize={onResetLogoSize}
         />
       </div>
       <button

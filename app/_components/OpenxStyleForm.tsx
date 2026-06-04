@@ -13,9 +13,12 @@ type OpenxStyleFormProps = {
     value: number,
   ) => void;
   onResetFont: (key: FontStyleKey) => void;
+  onUpdateLogoSize: (value: number) => void;
+  onUpdateLogoOffsetY: (value: number) => void;
+  onResetLogoSize: () => void;
 };
 
-type FontStyleKey = OpenxEditablePart;
+type FontStyleKey = Exclude<OpenxEditablePart, "logo">;
 
 type NumberInputProps = {
   label: string;
@@ -27,6 +30,7 @@ type NumberInputProps = {
 };
 
 const partLabels: Record<OpenxEditablePart, string> = {
+  logo: "Logo",
   name: "이름",
   role: "직책",
   phone: "폰 번호",
@@ -101,8 +105,39 @@ export const OpenxStyleForm = ({
   selectedPart,
   onUpdateFont,
   onResetFont,
+  onUpdateLogoSize,
+  onUpdateLogoOffsetY,
+  onResetLogoSize,
 }: OpenxStyleFormProps) => {
   const renderControls = () => {
+    if (selectedPart === "logo") {
+      return (
+        <div className="grid gap-3">
+          <NumberInput
+            label="Logo size"
+            value={style.logoSize}
+            min={60}
+            max={360}
+            onChange={onUpdateLogoSize}
+          />
+          <NumberInput
+            label="Logo vertical position"
+            value={style.logoOffsetY}
+            min={-120}
+            max={220}
+            onChange={onUpdateLogoOffsetY}
+          />
+          <button
+            type="button"
+            onClick={onResetLogoSize}
+            className="h-11 rounded-md border border-slate-300 px-4 text-sm font-bold text-slate-700 transition hover:border-main hover:text-main"
+          >
+            기본값으로 돌아가기
+          </button>
+        </div>
+      );
+    }
+
     return (
       <FontControls
         font={style[selectedPart]}
@@ -114,6 +149,15 @@ export const OpenxStyleForm = ({
   };
 
   const controls = renderControls();
+  const resetSelectedFont = () => {
+    if (selectedPart !== "logo") {
+      onResetFont(selectedPart);
+    }
+  };
+  const fontResetClassName =
+    selectedPart === "logo"
+      ? "hidden"
+      : "h-11 rounded-md border border-slate-300 px-4 text-sm font-bold text-slate-700 transition hover:border-main hover:text-main";
 
   return (
     <div className="rounded-lg  bg-white p-4">
@@ -133,8 +177,8 @@ export const OpenxStyleForm = ({
           {controls}
           <button
             type="button"
-            onClick={() => onResetFont(selectedPart)}
-            className="h-11 rounded-md border border-slate-300 px-4 text-sm font-bold text-slate-700 transition hover:border-main hover:text-main"
+            onClick={resetSelectedFont}
+            className={fontResetClassName}
           >
             기본값으로 돌아가기
           </button>
