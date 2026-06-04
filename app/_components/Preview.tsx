@@ -254,7 +254,7 @@ export default function Preview() {
             canSave={!isSelectStep}
           />
 
-          <div className="flex w-full max-w-[703px] flex-col gap-[20px] lg:h-[var(--editor-panel-height)] lg:overflow-y-auto">
+          <div className="flex w-full max-w-[703px] flex-col gap-[20px] lg:h-[var(--editor-panel-height)] lg:overflow-hidden">
             <div className="rounded-[50px] border border-slate-200 bg-white p-4 shadow-sm">
               <div className="flex items-center rounded-[50px]">
                 <button

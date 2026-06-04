@@ -81,7 +81,7 @@ export const CardFieldsForm = ({
   };
 
   return (
-    <div className="rounded-[30px] border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="min-h-0 rounded-[30px] border border-slate-200 bg-white p-4 shadow-sm lg:flex-1 lg:overflow-y-auto">
       <div className="mt-4 grid grid-cols-2 gap-3">
         {editableFields.map((field) =>
           visibility[field] ? (
