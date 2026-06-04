@@ -1,6 +1,7 @@
 export type FieldKey =
   | "logo"
   | "name"
+  | "englishName"
   | "role"
   | "phone"
   | "fax"
@@ -14,6 +15,7 @@ export type CardContentKey =
   | "sponsorImage"
   | "awardStrip"
   | "name"
+  | "englishName"
   | "role"
   | "logo"
   | "phone"
@@ -57,6 +59,7 @@ export type OpenxCardStyle = {
   primaryColor: string;
   secondaryColor: string;
   name: FontStyle;
+  englishName: FontStyle;
   role: FontStyle;
   contact: FontStyle;
   phone: FontStyle;
@@ -69,6 +72,7 @@ export type OpenxCardStyle = {
 export type OpenxEditablePart =
   | "logo"
   | "name"
+  | "englishName"
   | "role"
   | "phone"
   | "fax"

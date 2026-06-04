@@ -98,6 +98,13 @@ const kcstContactLayout = {
   addressOffsetY: 18,
 };
 
+const hellobellProfileLayout = {
+  rightX: cardSize.width - cardContentMargin,
+  nameBaselineY: 84,
+  englishNameBaselineY: 125,
+  roleBaselineY: 183,
+};
+
 const estimateTextWidth = (
   text: string,
   font: FontStyle,
@@ -145,6 +152,26 @@ const getTextBounds = (
   width: Math.max(1, estimateTextWidth(text, font, useCanvasMeasurement)),
   height: font.size * 1.3,
 });
+
+const getRightAlignedTextBounds = (
+  rightX: number,
+  baselineY: number,
+  text: string,
+  font: FontStyle,
+  useCanvasMeasurement: boolean,
+): Bounds => {
+  const width = Math.max(
+    1,
+    estimateTextWidth(text, font, useCanvasMeasurement),
+  );
+
+  return {
+    x: rightX - width,
+    y: baselineY - font.size * 1.05,
+    width,
+    height: font.size * 1.3,
+  };
+};
 
 const getProfileRoleX = (
   data: CardData,
@@ -226,6 +253,7 @@ const buildHotspots = (
   customLogoDimensions: ImageDimensions | null,
 ): Hotspot[] => {
   const isKcst = selectedLogoPreset === "kcst";
+  const isHellobell = selectedLogoPreset === "hellobell";
   const valueRows: HotspotValueRow[] = [
     {
       key: "phone",
@@ -287,13 +315,47 @@ const buildHotspots = (
     hotspots.push({
       part: "name",
       label: "Name",
-      bounds: getTextBounds(
-        isKcst ? kcstProfilePositions.nameX : profileLayout.nameX,
-        isKcst ? kcstProfileLayout.baselineY : profileLayout.baselineY,
-        data.name,
-        style.name,
-        useCanvasMeasurement,
-      ),
+      bounds: isHellobell
+        ? getRightAlignedTextBounds(
+            hellobellProfileLayout.rightX,
+            hellobellProfileLayout.nameBaselineY,
+            data.name,
+            style.name,
+            useCanvasMeasurement,
+          )
+        : getTextBounds(
+            isKcst
+            ? kcstProfilePositions.nameX
+            : profileLayout.nameX,
+            isKcst
+            ? kcstProfileLayout.baselineY
+            : profileLayout.baselineY,
+            data.name,
+            style.name,
+            useCanvasMeasurement,
+          ),
+    });
+  }
+
+  if (visibility.englishName) {
+    hotspots.push({
+      part: "englishName",
+      label: "English name",
+      bounds: isHellobell
+        ? getRightAlignedTextBounds(
+            hellobellProfileLayout.rightX,
+            hellobellProfileLayout.englishNameBaselineY,
+            data.englishName,
+            style.englishName,
+            useCanvasMeasurement,
+          )
+        : getTextBounds(
+            profileLayout.nameX,
+            profileLayout.baselineY + style.englishName.size + 12,
+            data.englishName,
+            style.englishName,
+            useCanvasMeasurement,
+          ),
     });
   }
 
@@ -301,15 +363,25 @@ const buildHotspots = (
     hotspots.push({
       part: "role",
       label: "Role",
-      bounds: getTextBounds(
-        isKcst
+      bounds: isHellobell
+        ? getRightAlignedTextBounds(
+            hellobellProfileLayout.rightX,
+            hellobellProfileLayout.roleBaselineY,
+            data.role,
+            style.role,
+            useCanvasMeasurement,
+          )
+        : getTextBounds(
+            isKcst
           ? kcstProfilePositions.roleX
           : getProfileRoleX(data, style, visibility, useCanvasMeasurement),
-        isKcst ? kcstProfileLayout.baselineY : profileLayout.baselineY,
-        data.role,
-        style.role,
-        useCanvasMeasurement,
-      ),
+            isKcst
+            ? kcstProfileLayout.baselineY
+            : profileLayout.baselineY,
+            data.role,
+            style.role,
+            useCanvasMeasurement,
+          ),
     });
   }
 

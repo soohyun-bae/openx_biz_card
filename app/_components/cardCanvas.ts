@@ -111,6 +111,16 @@ const openxLogoSize = {
   height: 57,
 };
 
+const hellobellLogoSize = {
+  width: 219,
+  height: 62,
+};
+
+const hellobellLogoPosition = {
+  x: 70,
+  y: 60,
+};
+
 const logoNameGap = 45;
 const addressAwardGap = 27;
 const awardStripHeight = 60;
@@ -250,6 +260,10 @@ const mergeOpenxStyle = (style?: Partial<OpenxCardStyle>): OpenxCardStyle => ({
     ...openxDefaultStyle.name,
     ...style?.name,
   },
+  englishName: {
+    ...openxDefaultStyle.englishName,
+    ...style?.englishName,
+  },
   role: {
     ...openxDefaultStyle.role,
     ...style?.role,
@@ -335,6 +349,17 @@ const drawOpenxLogo = (
 
   if (logoPreset === "openx" && logo) {
     context.drawImage(logo, x, y, openxLogoSize.width, openxLogoSize.height);
+    return;
+  }
+
+  if (logoPreset === "hellobell" && logo) {
+    context.drawImage(
+      logo,
+      hellobellLogoPosition.x,
+      hellobellLogoPosition.y,
+      hellobellLogoSize.width,
+      hellobellLogoSize.height,
+    );
     return;
   }
 
@@ -464,6 +489,72 @@ const drawOpenxProfile = (
     data.role,
     roleX,
     profileLayout.baselineY,
+    style.primaryColor,
+    style.role,
+  );
+};
+
+const hellobellProfileLayout = {
+  rightX: cardSize.width - cardContentMargin,
+  nameBaselineY: 84,
+  englishNameBaselineY: 125,
+  roleBaselineY: 183,
+};
+
+const drawRightAlignedVisibleText = (
+  context: CanvasRenderingContext2D,
+  isVisible: boolean,
+  text: string,
+  rightX: number,
+  y: number,
+  color: string,
+  font: FontStyle,
+) => {
+  if (!isVisible) {
+    return;
+  }
+
+  context.fillStyle = color;
+  context.textAlign = "right";
+  const letterSpacing = setFont(
+    context,
+    font.size,
+    font.weight,
+    font.letterSpacing,
+  );
+  drawText(context, text, rightX, y, letterSpacing);
+};
+
+const drawHellobellProfile = (
+  context: CanvasRenderingContext2D,
+  data: CardData,
+  style: OpenxCardStyle,
+  visibility: CardContentVisibility,
+) => {
+  drawRightAlignedVisibleText(
+    context,
+    visibility.name,
+    data.name,
+    hellobellProfileLayout.rightX,
+    hellobellProfileLayout.nameBaselineY,
+    style.primaryColor,
+    style.name,
+  );
+  drawRightAlignedVisibleText(
+    context,
+    visibility.englishName,
+    data.englishName,
+    hellobellProfileLayout.rightX,
+    hellobellProfileLayout.englishNameBaselineY,
+    style.primaryColor,
+    style.englishName,
+  );
+  drawRightAlignedVisibleText(
+    context,
+    visibility.role,
+    data.role,
+    hellobellProfileLayout.rightX,
+    hellobellProfileLayout.roleBaselineY,
     style.primaryColor,
     style.role,
   );
@@ -842,8 +933,12 @@ const drawOpenxTemplate = (
   if (visibility.logo) {
     drawOpenxLogo(context, logo, style, logoPreset);
   }
-  drawOpenxSponsor(context, sponsorLogo, style, visibility);
-  drawOpenxProfile(context, data, style, visibility);
+  if (logoPreset === "hellobell") {
+    drawHellobellProfile(context, data, style, visibility);
+  } else {
+    drawOpenxSponsor(context, sponsorLogo, style, visibility);
+    drawOpenxProfile(context, data, style, visibility);
+  }
   drawOpenxContact(context, data, style, visibility);
   drawOpenxAwardStrip(context, awardLogo, style, visibility.awardStrip);
 };
@@ -893,7 +988,9 @@ export const drawCard = async (
       : await loadLogo(presetLogoSrc ?? "");
   const selectedSponsorLogoPreset = sponsorLogoPresets[0];
   const sponsorLogo =
-    templateId === "kcst" || styles?.content?.sponsorImage === false
+    templateId === "kcst" ||
+    styles?.logoPreset === "hellobell" ||
+    styles?.content?.sponsorImage === false
       ? null
       : await loadLogo(selectedSponsorLogoPreset?.src ?? "");
   const awardLogo =

@@ -32,11 +32,12 @@ type NumberInputProps = {
 const partLabels: Record<OpenxEditablePart, string> = {
   logo: "로고",
   name: "이름",
-  role: "직급",
-  phone: "핸드폰 번호",
+  englishName: "영어 이름",
+  role: "직책",
+  phone: "폰 번호",
   fax: "FAX",
   email: "이메일",
-  website: "웹사이트",
+  website: "사이트",
   address: "주소",
 };
 
@@ -120,7 +121,7 @@ export const OpenxStyleForm = ({
         onChange={onUpdateLogoSize}
       />
       <NumberInput
-        label="세로 위치 조정"
+        label="세로"
         value={style.logoOffsetY}
         min={-120}
         max={220}
@@ -144,14 +145,17 @@ export const OpenxStyleForm = ({
   };
 
   return (
-    <div className="rounded-lg bg-white">
-      <div className="flex items-center gap-3">
-        <h2 className="text-lg font-bold text-main">스타일 변경</h2>
-        <span className="rounded-[50px] bg-[#F1F5F9] px-3 py-1 text-sm font-bold text-main">
+    <div className="grid gap-3 rounded-lg bg-white">
+      <h2 className="text-lg font-bold text-main">스타일 변경</h2>
+      <div className="flex items-center justify-between gap-3">
+        <p className="min-w-0 text-sm text-slate-600">
+          명함 위 요소를 클릭하면 해당 스타일만 바로 수정할 수 있습니다.
+        </p>
+        <span className="shrink-0 rounded-[50px] bg-[#F1F5F9] px-3 py-1 text-sm font-bold text-main">
           {partLabels[selectedPart]}
         </span>
       </div>
-      <div className="mt-3 flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         {controls}
         <button
           type="button"

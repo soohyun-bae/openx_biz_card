@@ -15,13 +15,14 @@ export const cardSize = {
 
 export const cardContentMargin = 60;
 
-export const hellobellWebsite = "www.hellobellrent.co.kr/";
+export const hellobellWebsite = "www.hellobellrent.co.kr";
 export const kcstEmail = "hello@kcst.co.kr";
 export const kcstWebsite = "www.kcsta.co.kr";
 
 export const fieldLabels: Record<FieldKey, string> = {
   logo: "로고",
   name: "이름",
+  englishName: "영어 이름",
   role: "직급",
   phone: "핸드폰 번호",
   fax: "FAX",
@@ -33,6 +34,7 @@ export const fieldLabels: Record<FieldKey, string> = {
 export const initialData: CardData = {
   logo: "",
   name: "홍길동",
+  englishName: "Gil Dong Hong",
   role: "Brand Designer",
   phone: "010-1234-5678",
   fax: "02-1234-5678",
@@ -54,8 +56,13 @@ export const openxDefaultStyle: OpenxCardStyle = {
     weight: 700,
     letterSpacing: 25,
   },
-  role: {
+  englishName: {
     size: 30,
+    weight: 500,
+    letterSpacing: 0,
+  },
+  role: {
+    size: 25,
     weight: 500,
     letterSpacing: 0,
   },
@@ -95,6 +102,7 @@ export const contentLabels: Record<CardContentKey, string> = {
   sponsorImage: "주관사 이미지",
   awardStrip: "수상 기업 문구",
   name: "이름",
+  englishName: "영어 이름",
   role: "직급",
   logo: "로고 이미지",
   phone: "핸드폰 번호",
@@ -108,6 +116,7 @@ export const initialContentVisibility: CardContentVisibility = {
   sponsorImage: true,
   awardStrip: true,
   name: true,
+  englishName: true,
   role: true,
   logo: true,
   phone: true,

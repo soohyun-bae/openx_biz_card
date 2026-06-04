@@ -28,6 +28,33 @@ import type {
 type OpenxFontStyleKey = Exclude<OpenxEditablePart, "logo">;
 type EditorStep = "select" | "edit";
 
+const defaultEmails = [initialData.email, kcstEmail];
+const defaultWebsites = [initialData.website, kcstWebsite, hellobellWebsite];
+
+const getTemplateContactData = (presetId: LogoPresetId) => {
+  if (presetId === "kcst") {
+    return {
+      email: kcstEmail,
+      website: kcstWebsite,
+    };
+  }
+
+  if (presetId === "hellobell") {
+    return {
+      email: initialData.email,
+      website: hellobellWebsite,
+    };
+  }
+
+  return {
+    email: initialData.email,
+    website: initialData.website,
+  };
+};
+
+const isDefaultEmail = (email: string) => defaultEmails.includes(email);
+const isDefaultWebsite = (website: string) => defaultWebsites.includes(website);
+
 export default function Preview() {
   const [step, setStep] = useState<EditorStep>("select");
   const [data, setData] = useState<CardData>(initialData);
@@ -44,20 +71,12 @@ export default function Preview() {
   const isSelectStep = step === "select";
   const previewData = useMemo<CardData>(
     () =>
-      isSelectStep && selectedLogoPreset === "kcst"
+      isSelectStep
         ? {
             ...initialData,
-            email: kcstEmail,
-            website: kcstWebsite,
+            ...getTemplateContactData(selectedLogoPreset),
           }
-        : isSelectStep && selectedLogoPreset === "hellobell"
-          ? {
-              ...initialData,
-              website: hellobellWebsite,
-            }
-        : isSelectStep
-          ? initialData
-          : data,
+        : data,
     [data, isSelectStep, selectedLogoPreset],
   );
   const requiredVisibility = useMemo<CardContentVisibility>(
@@ -65,9 +84,10 @@ export default function Preview() {
       ...visibility,
       logo: true,
       name: true,
+      englishName: selectedLogoPreset === "hellobell",
       role: true,
     }),
-    [visibility],
+    [selectedLogoPreset, visibility],
   );
 
   useEffect(() => {
@@ -108,7 +128,12 @@ export default function Preview() {
   };
 
   const toggleContent = (key: CardContentKey, enabled: boolean) => {
-    if (key === "logo" || key === "name" || key === "role") {
+    if (
+      key === "logo" ||
+      key === "name" ||
+      key === "englishName" ||
+      key === "role"
+    ) {
       return;
     }
 
@@ -120,36 +145,21 @@ export default function Preview() {
 
   const selectLogoPreset = (presetId: LogoPresetId) => {
     setSelectedLogoPreset(presetId);
-    setData((current) => {
-      if (presetId === "kcst") {
-        return {
-          ...current,
-          email: current.email === initialData.email ? kcstEmail : current.email,
-          website:
-            current.website === initialData.website
-              ? kcstWebsite
-              : current.website,
-        };
-      }
+    if (presetId !== "hellobell" && selectedOpenxPart === "englishName") {
+      setSelectedOpenxPart("name");
+    }
 
-      if (presetId === "hellobell") {
-        return {
-          ...current,
-          website:
-            current.website === initialData.website ||
-            current.website === kcstWebsite
-              ? hellobellWebsite
-              : current.website,
-        };
-      }
+    setData((current) => {
+      const templateContactData = getTemplateContactData(presetId);
 
       return {
         ...current,
-        email: current.email === kcstEmail ? initialData.email : current.email,
-        website:
-          current.website === kcstWebsite || current.website === hellobellWebsite
-            ? initialData.website
-            : current.website,
+        email: isDefaultEmail(current.email)
+          ? templateContactData.email
+          : current.email,
+        website: isDefaultWebsite(current.website)
+          ? templateContactData.website
+          : current.website,
       };
     });
   };
@@ -232,7 +242,7 @@ export default function Preview() {
                 Business Card Maker
               </p>
               <h1 className="text-3xl font-bold text-sub leading-tight sm:text-4xl">
-                명함 커스텀 제작
+                온라인 명함 커스텀 제작
               </h1>
             </div>
           </div>
