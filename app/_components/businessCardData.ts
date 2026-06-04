@@ -45,9 +45,9 @@ export const openxDefaultStyle: OpenxCardStyle = {
   primaryColor: "#111827",
   secondaryColor: "#111827",
   name: {
-    size: 42,
+    size: 44,
     weight: 700,
-    letterSpacing: 20,
+    letterSpacing: 25,
   },
   role: {
     size: 30,
@@ -60,27 +60,27 @@ export const openxDefaultStyle: OpenxCardStyle = {
     letterSpacing: 0,
   },
   phone: {
-    size: 28,
+    size: 26,
     weight: 500,
     letterSpacing: 0,
   },
   fax: {
-    size: 28,
+    size: 26,
     weight: 500,
     letterSpacing: 0,
   },
   email: {
-    size: 28,
+    size: 26,
     weight: 500,
     letterSpacing: 0,
   },
   website: {
-    size: 28,
+    size: 26,
     weight: 500,
     letterSpacing: 0,
   },
   address: {
-    size: 28,
+    size: 25,
     weight: 500,
     letterSpacing: 0,
   },
@@ -138,6 +138,6 @@ export const sponsorLogoPresets: SponsorLogoPreset[] = [
   {
     id: "hostCompanyLogos",
     name: "Host Company Logos",
-    src: "/logos/host-company-logos.png",
+    src: "/logos/host-logos.png",
   },
 ];

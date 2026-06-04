@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { fieldLabels } from "./businessCardData";
 import { OpenxStyleForm } from "./OpenxStyleForm";
 import type {
@@ -51,6 +52,8 @@ export const CardFieldsForm = ({
   onResetFont,
   onBackToContentSelect,
 }: CardFieldsFormProps) => {
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
   const updateLogo = (file: File | undefined) => {
     if (!file) {
       return;
@@ -61,6 +64,14 @@ export const CardFieldsForm = ({
       onUpdateField("logo", String(reader.result ?? ""));
     };
     reader.readAsDataURL(file);
+  };
+
+  const clearLogo = () => {
+    onUpdateField("logo", "");
+
+    if (logoInputRef.current) {
+      logoInputRef.current.value = "";
+    }
   };
 
   return (
@@ -83,16 +94,29 @@ export const CardFieldsForm = ({
 
         {visibility.logo && selectedLogoPreset === "custom" ? (
           <label className="grid gap-1.5">
-            <span className="text-sm font-semibold text-slate-700">
+            <span className="text-sm font-semibold text-main">
               {fieldLabels.logo}
             </span>
             <span className="grid gap-2">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(event) => updateLogo(event.target.files?.[0])}
-                className="block w-full rounded-md border border-slate-300 text-sm text-slate-700 file:mr-3 file:h-11 file:border-0 file:bg-slate-950 file:px-4 file:font-bold file:text-white hover:file:bg-teal-700"
-              />
+              <span className="relative block">
+                <input
+                  ref={logoInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={(event) => updateLogo(event.target.files?.[0])}
+                  className="block w-full rounded-md border border-slate-300 pr-11 text-sm text-slate-700 file:mr-3 file:h-11 file:border-0 file:bg-slate-950 file:px-4 file:font-bold file:text-white hover:file:bg-main"
+                />
+                {data.logo ? (
+                  <button
+                    type="button"
+                    onClick={clearLogo}
+                    aria-label="Cancel uploaded logo"
+                    className="absolute right-2 top-1/2 flex size-7 -translate-y-1/2 items-center justify-center rounded-full text-lg font-bold leading-none text-slate-500 transition hover:bg-slate-100 hover:text-slate-950"
+                  >
+                    x
+                  </button>
+                ) : null}
+              </span>
             </span>
           </label>
         ) : null}

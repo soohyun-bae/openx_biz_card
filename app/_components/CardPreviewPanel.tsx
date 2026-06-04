@@ -58,6 +58,7 @@ const openxLogoSize = {
 const logoNameGap = 45;
 const addressAwardGap = 27;
 const awardStripHeight = 60;
+const hiddenAwardContactOffsetY = 27;
 
 const profileLayout = {
   nameX: cardContentMargin,
@@ -74,7 +75,7 @@ const contactLayout = {
   valueX: cardContentMargin + 40,
   addressX: cardContentMargin,
   addressBaselineY: cardSize.height - awardStripHeight - addressAwardGap,
-  rowGap: 42,
+  rowGap: 37,
 };
 
 const kcstProfileLayout = {
@@ -232,9 +233,12 @@ const buildHotspots = (
   const visibleValueRows = valueRows.filter(
     (row) => visibility[row.key] && (isKcst || !row.skipHotspot),
   );
+  const awardOffsetY =
+    isKcst || visibility.awardStrip ? 0 : hiddenAwardContactOffsetY;
   const firstVisibleValueRowY =
     contactLayout.addressBaselineY -
-    (visibleValueRows.length - 1) * contactLayout.rowGap;
+    (visibleValueRows.length - 1) * contactLayout.rowGap +
+    awardOffsetY;
   const hotspots: Hotspot[] = [];
 
   const kcstProfilePositions = getKcstProfilePositions(

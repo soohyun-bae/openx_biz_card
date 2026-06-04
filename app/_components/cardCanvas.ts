@@ -114,6 +114,7 @@ const openxLogoSize = {
 const logoNameGap = 45;
 const addressAwardGap = 27;
 const awardStripHeight = 60;
+const hiddenAwardContactOffsetY = 27;
 
 const profileLayout = {
   nameX: cardContentMargin,
@@ -135,7 +136,7 @@ const contactLayout = {
   labelX: cardContentMargin,
   valueX: cardContentMargin + 40,
   addressBaselineY: cardSize.height - awardStripHeight - addressAwardGap,
-  rowGap: 42,
+  rowGap: 37,
 };
 
 const kcstContactLayout = {
@@ -235,7 +236,7 @@ const drawCustomLogoUploadGuide = (
   setFont(context, 24, 700, 0);
   drawText(
     context,
-    "이미지를 첨부해주세요.",
+    "내용 수정 단계에서  이미지를 첨부해주세요.",
     cardContentMargin,
     cardContentMargin + 24,
   );
@@ -559,9 +560,11 @@ const drawOpenxContact = (
     },
   ] as const;
   const visibleRows = rows.filter((row) => visibility[row.key]);
+  const awardOffsetY = visibility.awardStrip ? 0 : hiddenAwardContactOffsetY;
   const firstVisibleRowY =
     contactLayout.addressBaselineY -
-    (visibleRows.length - 1) * contactLayout.rowGap;
+    (visibleRows.length - 1) * contactLayout.rowGap +
+    awardOffsetY;
 
   visibleRows.forEach((row, index) => {
     const y = firstVisibleRowY + index * contactLayout.rowGap;
@@ -716,6 +719,10 @@ const drawOpenxAwardStrip = (
   style: OpenxCardStyle,
   showContent: boolean,
 ) => {
+  if (!showContent) {
+    return;
+  }
+
   const stripColor = "#D1D6DF";
   const stripHeight = awardStripHeight;
   const tailHeight = 9;
@@ -744,11 +751,6 @@ const drawOpenxAwardStrip = (
   context.closePath();
   context.fill();
 
-  if (!showContent) {
-    context.restore();
-    return;
-  }
-
   if (awardLogo) {
     drawImageNatural(
       context,
@@ -760,7 +762,7 @@ const drawOpenxAwardStrip = (
     );
   }
 
-  context.fillStyle = style.primaryColor;
+  context.fillStyle = "#575757";
   context.textAlign = "left";
   context.textBaseline = "middle";
   setFont(context, 20, 700, 0);
@@ -784,17 +786,17 @@ const drawOpenxSponsor = (
   }
 
   context.save();
-  const sponsorImageMaxWidth = 183;
-  const sponsorX = cardSize.width - cardContentMargin - sponsorImageMaxWidth;
-  const sponsorImageY = 83;
-  const sponsorImageMaxHeight = 44;
+  const sponsorImageMaxWidth = 250;
+  const sponsorX = 570;
+  const sponsorImageY = 50;
+  const sponsorImageMaxHeight = 90;
 
   context.textAlign = "left";
   context.fillStyle = "#ffffff";
   context.lineWidth = 2;
   context.fillStyle = style.primaryColor;
   setFont(context, 14, 700, 0.8);
-  drawText(context, "브랜드어워즈공식주관사", sponsorX, 73, 0.8);
+  // drawText(context, "브랜드어워즈공식주관사", sponsorX, 73, 0.8);
 
   if (sponsorLogo) {
     const ratio = Math.min(
