@@ -122,6 +122,13 @@ const hellobellLogoPosition = {
   y: 60,
 };
 
+const cardWidthMm = 90;
+const pxPerMm = cardSize.width / cardWidthMm;
+const hellobellProfileTopY = 6 * pxPerMm;
+const hellobellProfileRightX = cardSize.width - 7 * pxPerMm;
+const hellobellEnglishNameGap = 41;
+const hellobellRoleGap = 99;
+
 const logoNameGap = 45;
 const addressAwardGap = 27;
 const awardStripHeight = 60;
@@ -495,11 +502,15 @@ const drawOpenxProfile = (
   );
 };
 
-const hellobellProfileLayout = {
-  rightX: cardSize.width - cardContentMargin,
-  nameBaselineY: 84,
-  englishNameBaselineY: 125,
-  roleBaselineY: 183,
+const getHellobellProfileLayout = (style: OpenxCardStyle) => {
+  const nameBaselineY = hellobellProfileTopY + style.name.size * 1.05;
+
+  return {
+    rightX: hellobellProfileRightX,
+    nameBaselineY,
+    englishNameBaselineY: nameBaselineY + hellobellEnglishNameGap,
+    roleBaselineY: nameBaselineY + hellobellRoleGap,
+  };
 };
 
 const drawRightAlignedVisibleText = (
@@ -532,12 +543,14 @@ const drawHellobellProfile = (
   style: OpenxCardStyle,
   visibility: CardContentVisibility,
 ) => {
+  const layout = getHellobellProfileLayout(style);
+
   drawRightAlignedVisibleText(
     context,
     visibility.name,
     data.name,
-    hellobellProfileLayout.rightX,
-    hellobellProfileLayout.nameBaselineY,
+    layout.rightX,
+    layout.nameBaselineY,
     style.primaryColor,
     style.name,
   );
@@ -545,8 +558,8 @@ const drawHellobellProfile = (
     context,
     visibility.englishName,
     data.englishName,
-    hellobellProfileLayout.rightX,
-    hellobellProfileLayout.englishNameBaselineY,
+    layout.rightX,
+    layout.englishNameBaselineY,
     style.primaryColor,
     style.englishName,
   );
@@ -554,8 +567,8 @@ const drawHellobellProfile = (
     context,
     visibility.role,
     data.role,
-    hellobellProfileLayout.rightX,
-    hellobellProfileLayout.roleBaselineY,
+    layout.rightX,
+    layout.roleBaselineY,
     style.primaryColor,
     style.role,
   );

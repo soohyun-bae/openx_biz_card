@@ -99,11 +99,22 @@ const kcstContactLayout = {
   addressOffsetY: 18,
 };
 
-const hellobellProfileLayout = {
-  rightX: cardSize.width - cardContentMargin,
-  nameBaselineY: 84,
-  englishNameBaselineY: 125,
-  roleBaselineY: 183,
+const cardWidthMm = 90;
+const pxPerMm = cardSize.width / cardWidthMm;
+const hellobellProfileTopY = 6 * pxPerMm;
+const hellobellProfileRightX = cardSize.width - 7 * pxPerMm;
+const hellobellEnglishNameGap = 41;
+const hellobellRoleGap = 99;
+
+const getHellobellProfileLayout = (style: OpenxCardStyle) => {
+  const nameBaselineY = hellobellProfileTopY + style.name.size * 1.05;
+
+  return {
+    rightX: hellobellProfileRightX,
+    nameBaselineY,
+    englishNameBaselineY: nameBaselineY + hellobellEnglishNameGap,
+    roleBaselineY: nameBaselineY + hellobellRoleGap,
+  };
 };
 
 const estimateTextWidth = (
@@ -255,6 +266,7 @@ const buildHotspots = (
 ): Hotspot[] => {
   const isKcst = selectedLogoPreset === "kcst";
   const isHellobell = selectedLogoPreset === "hellobell";
+  const hellobellProfileLayout = getHellobellProfileLayout(style);
   const valueRows: HotspotValueRow[] = [
     {
       key: "phone",

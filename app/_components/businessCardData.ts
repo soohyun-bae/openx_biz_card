@@ -58,7 +58,7 @@ export const openxDefaultStyle: OpenxCardStyle = {
   },
   englishName: {
     size: 30,
-    weight: 500,
+    weight: 200,
     letterSpacing: 0,
   },
   role: {

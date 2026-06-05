@@ -37,7 +37,7 @@ const getDefaultStyle = (presetId: LogoPresetId): OpenxCardStyle => {
       ...openxDefaultStyle,
       englishName: {
         ...openxDefaultStyle.englishName,
-        weight: 300,
+        weight: 200,
       },
       role: {
         ...openxDefaultStyle.role,
@@ -177,7 +177,7 @@ export default function Preview() {
         ...current,
         englishName: {
           ...current.englishName,
-          weight: 300,
+          weight: 200,
         },
         role: {
           ...current.role,
