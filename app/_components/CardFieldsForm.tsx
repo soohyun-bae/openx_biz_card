@@ -19,6 +19,7 @@ type CardFieldsFormProps = {
   selectedLogoPreset: LogoPresetId;
   style: OpenxCardStyle;
   selectedOpenxPart: OpenxEditablePart;
+  onSelectOpenxPart: (part: OpenxEditablePart) => void;
   onUpdateField: (field: FieldKey, value: string) => void;
   onUpdateFont: (
     key: OpenxFontStyleKey,
@@ -52,6 +53,7 @@ export const CardFieldsForm = ({
   selectedLogoPreset,
   style,
   selectedOpenxPart,
+  onSelectOpenxPart,
   onUpdateField,
   onUpdateFont,
   onResetFont,
@@ -87,23 +89,38 @@ export const CardFieldsForm = ({
     <div className="flex min-h-0 flex-col rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm sm:rounded-[30px] sm:p-5 xl:flex-1 xl:overflow-hidden">
       <div className="flex min-h-0 flex-1 flex-col justify-between gap-5 overflow-y-auto">
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {editableFields.map((field) =>
-            visibility[field] ? (
+          {editableFields.map((field) => {
+            if (!visibility[field]) {
+              return null;
+            }
+
+            const isSelected = selectedOpenxPart === field;
+
+            return (
               <label key={field} className="grid gap-1.5">
                 <span className="text-sm font-semibold text-main">
                   {fieldLabels[field]}
                 </span>
                 <input
                   value={data[field]}
+                  onFocus={() => onSelectOpenxPart(field)}
                   onChange={(event) => onUpdateField(field, event.target.value)}
-                  className="h-11 min-w-0 rounded-md border border-slate-300 px-3 text-base outline-none transition focus:border-main focus:ring-2 focus:ring-teal-100"
+                  className={`h-11 min-w-0 rounded-md border px-3 text-base outline-none transition focus:border-main focus:ring-2 focus:ring-teal-100 ${
+                    isSelected
+                      ? "border-main ring-2 ring-teal-100"
+                      : "border-slate-300"
+                  }`}
                 />
               </label>
-            ) : null,
-          )}
+            );
+          })}
 
-          {visibility.logo && selectedLogoPreset === "custom" ? (
-            <label className="grid min-w-0 gap-1.5">
+          {visibility.logo ? (
+            <label
+              className={`min-w-0 gap-1.5 ${
+                selectedLogoPreset === "custom" ? "grid" : "hidden"
+              }`}
+            >
               <span className="text-sm font-semibold text-main">
                 {fieldLabels.logo}
               </span>
@@ -113,8 +130,13 @@ export const CardFieldsForm = ({
                     ref={logoInputRef}
                     type="file"
                     accept="image/*"
+                    onFocus={() => onSelectOpenxPart("logo")}
                     onChange={(event) => updateLogo(event.target.files?.[0])}
-                    className="block w-full min-w-0 rounded-md border border-slate-300 pr-11 text-sm text-slate-700 file:mr-3 file:h-11 file:border-0 file:bg-slate-950 file:px-4 file:font-bold file:text-white hover:file:bg-main"
+                    className={`block w-full min-w-0 rounded-md border pr-11 text-sm text-slate-700 file:mr-3 file:h-11 file:border-0 file:bg-slate-950 file:px-4 file:font-bold file:text-white hover:file:bg-main ${
+                      selectedOpenxPart === "logo"
+                        ? "border-main ring-2 ring-teal-100"
+                        : "border-slate-300"
+                    }`}
                   />
                   {data.logo ? (
                     <button

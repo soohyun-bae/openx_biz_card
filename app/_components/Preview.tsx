@@ -161,6 +161,11 @@ export default function Preview() {
     }));
   };
 
+  const enterEditStep = () => {
+    setSelectedOpenxPart("name");
+    setStep("edit");
+  };
+
   const selectLogoPreset = (presetId: LogoPresetId) => {
     setSelectedLogoPreset(presetId);
     if (presetId !== "hellobell" && selectedOpenxPart === "englishName") {
@@ -319,7 +324,7 @@ export default function Preview() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setStep("edit")}
+                  onClick={enterEditStep}
                   className={`relative h-14 flex-1 rounded-[50px] text-sm font-bold transition ${
                     !isSelectStep
                       ? "z-20 bg-main text-white"
@@ -330,24 +335,23 @@ export default function Preview() {
                 </button>
               </div>
             </div>
-            {isSelectStep ? (
-              <>
+            <div className={isSelectStep ? "contents" : "hidden"}>
                 <ContentSelector
                   visibility={requiredVisibility}
                   selectedLogoPreset={selectedLogoPreset}
                   onToggleContent={toggleContent}
                   onSelectLogoPreset={selectLogoPreset}
-                  onNext={() => setStep("edit")}
+                  onNext={enterEditStep}
                 />
-              </>
-            ) : (
-              <>
+            </div>
+            <div className={isSelectStep ? "hidden" : "contents"}>
                 <CardFieldsForm
                   data={data}
                   visibility={requiredVisibility}
                   selectedLogoPreset={selectedLogoPreset}
                   style={openxStyle}
                   selectedOpenxPart={selectedOpenxPart}
+                  onSelectOpenxPart={setSelectedOpenxPart}
                   onUpdateField={updateField}
                   onUpdateFont={updateOpenxFont}
                   onResetFont={resetOpenxFont}
@@ -357,8 +361,7 @@ export default function Preview() {
                   onBackToContentSelect={() => setStep("select")}
                   onSavePng={savePng}
                 />
-              </>
-            )}
+            </div>
           </div>
         </section>
       </div>
