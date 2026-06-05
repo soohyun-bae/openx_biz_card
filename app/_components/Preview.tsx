@@ -31,6 +31,24 @@ type EditorStep = "select" | "edit";
 const defaultEmails = [initialData.email, kcstEmail];
 const defaultWebsites = [initialData.website, kcstWebsite, hellobellWebsite];
 
+const getDefaultStyle = (presetId: LogoPresetId): OpenxCardStyle => {
+  if (presetId === "hellobell") {
+    return {
+      ...openxDefaultStyle,
+      englishName: {
+        ...openxDefaultStyle.englishName,
+        weight: 300,
+      },
+      role: {
+        ...openxDefaultStyle.role,
+        weight: 400,
+      },
+    };
+  }
+
+  return openxDefaultStyle;
+};
+
 const getTemplateContactData = (presetId: LogoPresetId) => {
   if (presetId === "kcst") {
     return {
@@ -154,6 +172,18 @@ export default function Preview() {
         ...current,
         sponsorImage: false,
       }));
+
+      setOpenxStyle((current) => ({
+        ...current,
+        englishName: {
+          ...current.englishName,
+          weight: 300,
+        },
+        role: {
+          ...current.role,
+          weight: 400,
+        },
+      }));
     }
 
     setData((current) => {
@@ -186,10 +216,12 @@ export default function Preview() {
   };
 
   const resetOpenxFont = (key: OpenxFontStyleKey) => {
+    const defaultStyle = getDefaultStyle(selectedLogoPreset);
+
     setOpenxStyle((current) => ({
       ...current,
       [key]: {
-        ...openxDefaultStyle[key],
+        ...defaultStyle[key],
       },
     }));
   };

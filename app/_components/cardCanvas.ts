@@ -14,6 +14,7 @@ import type {
   LogoPresetId,
   OpenxCardStyle,
 } from "./businessCardTypes";
+import { ensureCardFontLoaded, getCanvasFont } from "./cardFont";
 
 const setFont = (
   context: CanvasRenderingContext2D,
@@ -21,7 +22,7 @@ const setFont = (
   weight: number | string = 400,
   letterSpacing = 0,
 ) => {
-  context.font = `${weight} ${size}px Arial, Helvetica, sans-serif`;
+  context.font = getCanvasFont(weight, size);
   return letterSpacing;
 };
 
@@ -999,6 +1000,8 @@ export const drawCard = async (
       : await loadLogo("/logos/biz-card-bottom-logo.png");
   const kcstBackground =
     templateId === "kcst" ? await loadLogo("/logos/.png") : null;
+
+  await ensureCardFontLoaded();
 
   context.save();
   context.scale(scale, scale);

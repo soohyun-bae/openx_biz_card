@@ -63,7 +63,7 @@ export const openxDefaultStyle: OpenxCardStyle = {
   },
   role: {
     size: 25,
-    weight: 500,
+    weight: 300,
     letterSpacing: 0,
   },
   contact: {
@@ -73,27 +73,27 @@ export const openxDefaultStyle: OpenxCardStyle = {
   },
   phone: {
     size: 26,
-    weight: 500,
+    weight: 300,
     letterSpacing: 0,
   },
   fax: {
     size: 26,
-    weight: 500,
+    weight: 300,
     letterSpacing: 0,
   },
   email: {
     size: 26,
-    weight: 500,
+    weight: 300,
     letterSpacing: 0,
   },
   website: {
     size: 26,
-    weight: 500,
+    weight: 300,
     letterSpacing: 0,
   },
   address: {
     size: 25,
-    weight: 500,
+    weight: 300,
     letterSpacing: 0,
   },
 };

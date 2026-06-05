@@ -12,6 +12,7 @@ import type {
   OpenxCardStyle,
   OpenxEditablePart,
 } from "./businessCardTypes";
+import { getCanvasFont } from "./cardFont";
 
 type CardPreviewPanelProps = {
   canvasRef: RefObject<HTMLCanvasElement | null>;
@@ -117,7 +118,7 @@ const estimateTextWidth = (
       : document.createElement("canvas").getContext("2d");
 
   if (context) {
-    context.font = `${font.weight} ${font.size}px Arial, Helvetica, sans-serif`;
+    context.font = getCanvasFont(font.weight, font.size);
 
     return (
       characters.reduce(
