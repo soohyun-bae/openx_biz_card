@@ -33,7 +33,7 @@ const partLabels: Record<OpenxEditablePart, string> = {
   logo: "로고",
   name: "이름",
   englishName: "영어 이름",
-  role: "직책",
+  role: "직급",
   phone: "폰 번호",
   fax: "FAX",
   email: "이메일",

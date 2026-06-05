@@ -303,7 +303,7 @@ export default function Preview() {
             canSave={false}
           />
 
-          <div className="flex w-full min-w-0 max-w-[703px] flex-col gap-[20px] xl:h-[var(--editor-panel-height)] xl:overflow-hidden">
+          <div className="flex w-full min-w-0 max-w-[866px] flex-col gap-[20px] xl:h-[var(--editor-panel-height)] xl:max-w-[703px] xl:overflow-hidden">
             <div className="rounded-[28px] border border-slate-200 bg-white p-3 shadow-sm sm:rounded-[50px] sm:p-4">
               <div className="flex items-center rounded-[50px]">
                 <button
