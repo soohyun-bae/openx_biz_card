@@ -149,6 +149,13 @@ export default function Preview() {
       setSelectedOpenxPart("name");
     }
 
+    if (presetId === "hellobell") {
+      setVisibility((current) => ({
+        ...current,
+        sponsorImage: false,
+      }));
+    }
+
     setData((current) => {
       const templateContactData = getTemplateContactData(presetId);
 

@@ -32,8 +32,11 @@ export const ContentSelector = ({
 }: ContentSelectorProps) => {
   const selectableContentKeys = contentKeys.filter(
     (key) =>
-      selectedLogoPreset !== "kcst" ||
-      (key !== "sponsorImage" && key !== "awardStrip"),
+      !(
+        (selectedLogoPreset === "kcst" &&
+          (key === "sponsorImage" || key === "awardStrip")) ||
+        (selectedLogoPreset === "hellobell" && key === "sponsorImage")
+      ),
   );
 
   return (
