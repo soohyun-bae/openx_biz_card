@@ -15,7 +15,7 @@ OPENX 명함을 브라우저에서 미리 보고 편집한 뒤 PNG로 저장하�
 
 ## 기술 스택
 
-- Next.js 16.2.6 App Router
+- ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=Next.js&logoColor=white) 16.2.6 App Router
 - React 19.2.4
 - TypeScript
 - Tailwind CSS 4
