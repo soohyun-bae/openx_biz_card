@@ -2,8 +2,7 @@
 
 OPENX 명함을 브라우저에서 미리 보고 편집한 뒤 PNG로 저장하는 Next.js 프로젝트입니다. 명함에 들어갈 로고, 이름/영어이름/직급, 전화번호/이메일/팩스/사이트주소/주소 텍스트의 글자/로고 크기와 굵기, 자간, 로고 위치를 화면에서 조정할 수 있습니다.
 
-<figure class="half"> <img src="[이미지경로](https://github.com/user-attachments/assets/2692d695-fe73-4d28-a834-77d01a0e2564)"> <img src="[이미지경로](https://github.com/user-attachments/assets/5478825b-6a05-4307-a1a3-f70e192fb88a)"> <figcaption>2개이미지.</figcaption></figure>
-
+![이미지1](https://github.com/user-attachments/assets/2692d695-fe73-4d28-a834-77d01a0e2564) ![이미지2](https://github.com/user-attachments/assets/5478825b-6a05-4307-a1a3-f70e192fb88a)
 
 ## 주요 기능
 
