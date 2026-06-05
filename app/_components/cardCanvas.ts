@@ -10,6 +10,7 @@ import type {
   CardContentVisibility,
   CardData,
   CardTemplateId,
+  CustomLayer,
   FontStyle,
   LogoPresetId,
   OpenxCardStyle,
@@ -930,6 +931,44 @@ const drawOpenxSponsor = (
   context.restore();
 };
 
+const drawCustomTemplate = async (
+  context: CanvasRenderingContext2D,
+  style: OpenxCardStyle,
+  layers: CustomLayer[],
+) => {
+  drawOpenxBackground(context, style);
+
+  for (const layer of layers) {
+    context.save();
+
+    if (layer.type === "text") {
+      context.fillStyle = layer.color;
+      context.textAlign = layer.align;
+      setFont(context, layer.size, layer.weight, layer.letterSpacing);
+      layer.text.split("\n").forEach((line, index) => {
+        drawText(
+          context,
+          line,
+          layer.x,
+          layer.y + index * layer.size * 1.25,
+          layer.letterSpacing,
+        );
+      });
+      context.restore();
+      continue;
+    }
+
+    const image = await loadLogo(layer.src);
+
+    if (image) {
+      context.globalAlpha = layer.opacity;
+      context.drawImage(image, layer.x, layer.y, layer.width, layer.height);
+    }
+
+    context.restore();
+  }
+};
+
 const drawOpenxTemplate = (
   context: CanvasRenderingContext2D,
   logo: HTMLImageElement | null,
@@ -977,8 +1016,13 @@ const drawKcstTemplate = (
   drawKcstContact(context, data, style, visibility);
 };
 
-const getCardTemplateId = (logoPreset?: LogoPresetId): CardTemplateId =>
-  logoPreset === "kcst" ? "kcst" : "openx";
+const getCardTemplateId = (logoPreset?: LogoPresetId): CardTemplateId => {
+  if (logoPreset === "customTemplate") {
+    return "custom";
+  }
+
+  return logoPreset === "kcst" ? "kcst" : "openx";
+};
 
 export const drawCard = async (
   context: CanvasRenderingContext2D,
@@ -988,6 +1032,7 @@ export const drawCard = async (
     openx?: Partial<OpenxCardStyle>;
     content?: CardContentVisibility;
     logoPreset?: LogoPresetId;
+    customLayers?: CustomLayer[];
   },
 ) => {
   const selectedLogoPreset = logoPresets.find(
@@ -997,18 +1042,21 @@ export const drawCard = async (
     styles?.logoPreset === "custom" ? data.logo : selectedLogoPreset?.src;
   const templateId = getCardTemplateId(styles?.logoPreset);
   const logo =
-    styles?.content?.logo === false
+    templateId === "custom" || styles?.content?.logo === false
       ? null
       : await loadLogo(presetLogoSrc ?? "");
   const selectedSponsorLogoPreset = sponsorLogoPresets[0];
   const sponsorLogo =
     templateId === "kcst" ||
+    templateId === "custom" ||
     styles?.logoPreset === "hellobell" ||
     styles?.content?.sponsorImage === false
       ? null
       : await loadLogo(selectedSponsorLogoPreset?.src ?? "");
   const awardLogo =
-    templateId === "kcst" || styles?.content?.awardStrip === false
+    templateId === "kcst" ||
+    templateId === "custom" ||
+    styles?.content?.awardStrip === false
       ? null
       : await loadLogo("/logos/biz-card-bottom-logo.png");
   const kcstBackground =
@@ -1021,7 +1069,13 @@ export const drawCard = async (
   context.clearRect(0, 0, cardSize.width, cardSize.height);
   context.textBaseline = "alphabetic";
 
-  if (templateId === "kcst") {
+  if (templateId === "custom") {
+    await drawCustomTemplate(
+      context,
+      mergeOpenxStyle(styles?.openx),
+      styles?.customLayers ?? [],
+    );
+  } else if (templateId === "kcst") {
     drawKcstTemplate(
       context,
       logo,

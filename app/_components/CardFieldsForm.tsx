@@ -1,9 +1,13 @@
 import { useRef } from "react";
+import { CustomTemplateForm } from "./CustomTemplateForm";
 import { fieldLabels } from "./businessCardData";
 import { OpenxStyleForm } from "./OpenxStyleForm";
 import type {
   CardContentVisibility,
   CardData,
+  CustomImageLayer,
+  CustomLayer,
+  CustomTextLayer,
   FieldKey,
   FontStyle,
   LogoPresetId,
@@ -12,6 +16,7 @@ import type {
 } from "./businessCardTypes";
 
 type OpenxFontStyleKey = Exclude<OpenxEditablePart, "logo">;
+type CustomLayerPatch = Partial<CustomTextLayer> | Partial<CustomImageLayer>;
 
 type CardFieldsFormProps = {
   data: CardData;
@@ -19,6 +24,8 @@ type CardFieldsFormProps = {
   selectedLogoPreset: LogoPresetId;
   style: OpenxCardStyle;
   selectedOpenxPart: OpenxEditablePart;
+  customLayers: CustomLayer[];
+  selectedCustomLayerId: string | null;
   onUpdateField: (field: FieldKey, value: string) => void;
   onUpdateFont: (
     key: OpenxFontStyleKey,
@@ -29,6 +36,13 @@ type CardFieldsFormProps = {
   onUpdateLogoSize: (value: number) => void;
   onUpdateLogoOffsetY: (value: number) => void;
   onResetLogoSize: () => void;
+  onSelectCustomLayer: (id: string) => void;
+  onAddCustomTextLayer: () => void;
+  onAddCustomImageLayer: (file: File | undefined) => void;
+  onUpdateCustomLayer: (id: string, patch: CustomLayerPatch) => void;
+  onDeleteCustomLayer: (id: string) => void;
+  onMoveCustomLayer: (id: string, direction: -1 | 1) => void;
+  onUpdateBackgroundColor: (color: string) => void;
   onBackToContentSelect: () => void;
   onSavePng: () => Promise<void>;
 };
@@ -52,12 +66,21 @@ export const CardFieldsForm = ({
   selectedLogoPreset,
   style,
   selectedOpenxPart,
+  customLayers,
+  selectedCustomLayerId,
   onUpdateField,
   onUpdateFont,
   onResetFont,
   onUpdateLogoSize,
   onUpdateLogoOffsetY,
   onResetLogoSize,
+  onSelectCustomLayer,
+  onAddCustomTextLayer,
+  onAddCustomImageLayer,
+  onUpdateCustomLayer,
+  onDeleteCustomLayer,
+  onMoveCustomLayer,
+  onUpdateBackgroundColor,
   onBackToContentSelect,
   onSavePng,
 }: CardFieldsFormProps) => {
@@ -82,6 +105,25 @@ export const CardFieldsForm = ({
       logoInputRef.current.value = "";
     }
   };
+
+  if (selectedLogoPreset === "customTemplate") {
+    return (
+      <CustomTemplateForm
+        layers={customLayers}
+        selectedLayerId={selectedCustomLayerId}
+        backgroundColor={style.backgroundColor}
+        onSelectLayer={onSelectCustomLayer}
+        onAddTextLayer={onAddCustomTextLayer}
+        onAddImageLayer={onAddCustomImageLayer}
+        onUpdateLayer={onUpdateCustomLayer}
+        onDeleteLayer={onDeleteCustomLayer}
+        onMoveLayer={onMoveCustomLayer}
+        onUpdateBackgroundColor={onUpdateBackgroundColor}
+        onBackToContentSelect={onBackToContentSelect}
+        onSavePng={onSavePng}
+      />
+    );
+  }
 
   return (
     <div className="flex min-h-0 flex-col rounded-[30px] border border-slate-200 bg-white p-5 shadow-sm lg:flex-1 lg:overflow-hidden">

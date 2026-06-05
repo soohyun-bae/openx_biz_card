@@ -32,12 +32,14 @@ export const ContentSelector = ({
 }: ContentSelectorProps) => {
   const selectableContentKeys = contentKeys.filter(
     (key) =>
+      selectedLogoPreset !== "customTemplate" &&
       !(
         (selectedLogoPreset === "kcst" &&
           (key === "sponsorImage" || key === "awardStrip")) ||
         (selectedLogoPreset === "hellobell" && key === "sponsorImage")
       ),
   );
+  const isCustomTemplate = selectedLogoPreset === "customTemplate";
 
   return (
     <div className="flex min-h-0 flex-1 flex-col rounded-[30px] border border-slate-200 bg-white p-5 shadow-sm">
@@ -72,7 +74,12 @@ export const ContentSelector = ({
       ) : null}
       <div className="h-[0.5px] mt-5 w-full bg-slate-300" />
       <div className="mt-5 grid min-h-0 flex-1 grid-cols-2 auto-rows-[minmax(3.75rem,1fr)] gap-3">
-        {selectableContentKeys.map((key) => {
+        {isCustomTemplate ? (
+          <div className="col-span-2 flex items-center justify-center rounded-[20px] border border-dashed border-slate-300 px-4 text-center text-sm text-slate-500">
+            다음 단계에서 텍스트와 이미지를 직접 배치할 수 있습니다.
+          </div>
+        ) : (
+          selectableContentKeys.map((key) => {
           const isVisible = visibility[key];
 
           return (
@@ -90,7 +97,8 @@ export const ContentSelector = ({
               {contentLabels[key]}
             </button>
           );
-        })}
+          })
+        )}
       </div>
       <button
         type="button"

@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState, type RefObject } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent,
+  type RefObject,
+} from "react";
 import {
   cardContentMargin,
   cardSize,
@@ -7,12 +13,17 @@ import {
 import type {
   CardContentVisibility,
   CardData,
+  CustomImageLayer,
+  CustomLayer,
+  CustomTextLayer,
   FontStyle,
   LogoPresetId,
   OpenxCardStyle,
   OpenxEditablePart,
 } from "./businessCardTypes";
 import { getCanvasFont } from "./cardFont";
+
+type CustomLayerPatch = Partial<CustomTextLayer> | Partial<CustomImageLayer>;
 
 type CardPreviewPanelProps = {
   canvasRef: RefObject<HTMLCanvasElement | null>;
@@ -24,6 +35,11 @@ type CardPreviewPanelProps = {
   selectedOpenxPart: OpenxEditablePart;
   onSelectOpenxPart: (part: OpenxEditablePart) => void;
   canEditStyle: boolean;
+  canEditCustomTemplate: boolean;
+  customLayers: CustomLayer[];
+  selectedCustomLayerId: string | null;
+  onSelectCustomLayer: (id: string) => void;
+  onUpdateCustomLayer: (id: string, patch: CustomLayerPatch) => void;
   canSave: boolean;
 };
 
@@ -58,6 +74,14 @@ type HotspotValueRow = {
   label: string;
   x: number;
   skipHotspot?: boolean;
+};
+
+type DragState = {
+  id: string;
+  startClientX: number;
+  startClientY: number;
+  startX: number;
+  startY: number;
 };
 
 const openxLogoSize = {
@@ -230,6 +254,53 @@ const getHotspotStyle = ({ x, y, width, height }: Bounds) => ({
   width: `${(width / cardSize.width) * 100}%`,
   height: `${(height / cardSize.height) * 100}%`,
 });
+
+const getCustomTextBounds = (
+  layer: CustomTextLayer,
+  useCanvasMeasurement: boolean,
+): Bounds => {
+  const lines = layer.text.split("\n");
+  const textFont = {
+    size: layer.size,
+    weight: layer.weight,
+    letterSpacing: layer.letterSpacing,
+  };
+  const width = Math.max(
+    1,
+    ...lines.map((line) =>
+      estimateTextWidth(line || " ", textFont, useCanvasMeasurement),
+    ),
+  );
+  const x =
+    layer.align === "center"
+      ? layer.x - width / 2
+      : layer.align === "right"
+        ? layer.x - width
+        : layer.x;
+
+  return {
+    x,
+    y: layer.y - layer.size * 1.05,
+    width,
+    height: Math.max(1, lines.length * layer.size * 1.25),
+  };
+};
+
+const getCustomLayerBounds = (
+  layer: CustomLayer,
+  useCanvasMeasurement: boolean,
+): Bounds =>
+  layer.type === "text"
+    ? getCustomTextBounds(layer, useCanvasMeasurement)
+    : {
+        x: layer.x,
+        y: layer.y,
+        width: layer.width,
+        height: layer.height,
+      };
+
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
 
 const getContainedImageBounds = (
   image: ImageDimensions,
@@ -460,6 +531,11 @@ export const CardPreviewPanel = ({
   selectedOpenxPart,
   onSelectOpenxPart,
   canEditStyle,
+  canEditCustomTemplate,
+  customLayers,
+  selectedCustomLayerId,
+  onSelectCustomLayer,
+  onUpdateCustomLayer,
   canSave,
 }: CardPreviewPanelProps) => {
   const [canMeasureText, setCanMeasureText] = useState(false);
@@ -468,6 +544,7 @@ export const CardPreviewPanel = ({
   const [visibleLabelPart, setVisibleLabelPart] =
     useState<OpenxEditablePart | null>(null);
   const labelTimeoutRef = useRef<number | null>(null);
+  const dragStateRef = useRef<DragState | null>(null);
   const customLogoDimensions =
     selectedLogoPreset === "custom" &&
     loadedCustomLogoDimensions?.src === data.logo
@@ -537,6 +614,61 @@ export const CardPreviewPanel = ({
     }, 900);
   };
 
+  const dragCustomLayer = (
+    event: PointerEvent<HTMLButtonElement>,
+    layer: CustomLayer,
+  ) => {
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    onSelectCustomLayer(layer.id);
+    dragStateRef.current = {
+      id: layer.id,
+      startClientX: event.clientX,
+      startClientY: event.clientY,
+      startX: layer.x,
+      startY: layer.y,
+    };
+  };
+
+  const moveCustomLayer = (event: PointerEvent<HTMLButtonElement>) => {
+    const dragState = dragStateRef.current;
+    const canvasBounds = canvasRef.current?.getBoundingClientRect();
+
+    if (!dragState || !canvasBounds) {
+      return;
+    }
+
+    const layer = customLayers.find((item) => item.id === dragState.id);
+
+    if (!layer) {
+      return;
+    }
+
+    const scaleX = cardSize.width / canvasBounds.width;
+    const scaleY = cardSize.height / canvasBounds.height;
+    const nextX =
+      dragState.startX + (event.clientX - dragState.startClientX) * scaleX;
+    const nextY =
+      dragState.startY + (event.clientY - dragState.startClientY) * scaleY;
+    const maxX =
+      layer.type === "image"
+        ? Math.max(0, cardSize.width - layer.width)
+        : cardSize.width;
+    const maxY =
+      layer.type === "image"
+        ? Math.max(0, cardSize.height - layer.height)
+        : cardSize.height;
+
+    onUpdateCustomLayer(layer.id, {
+      x: Math.round(clamp(nextX, 0, maxX)),
+      y: Math.round(clamp(nextY, 0, maxY)),
+    });
+  };
+
+  const endCustomLayerDrag = () => {
+    dragStateRef.current = null;
+  };
+
   return (
     <section className="flex w-full max-w-[866px] min-w-0 flex-col gap-4 rounded-[30px] border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:h-[var(--editor-panel-height)]">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -589,6 +721,45 @@ export const CardPreviewPanel = ({
                     hotspot.showLabel !== false ? (
                       <span className="absolute left-1 top-1 rounded bg-white/90 px-1.5 py-0.5 shadow-sm">
                         {hotspot.label}
+                      </span>
+                    ) : null}
+                  </button>
+                );
+              })}
+            </div>
+          ) : null}
+          {canEditCustomTemplate ? (
+            <div className="absolute inset-0 rounded-md">
+              {customLayers.map((layer) => {
+                const isSelected = selectedCustomLayerId === layer.id;
+                const bounds = getCustomLayerBounds(layer, canMeasureText);
+                const label =
+                  layer.type === "text"
+                    ? layer.text.split("\n")[0] || "Text"
+                    : "Image";
+
+                return (
+                  <button
+                    key={layer.id}
+                    type="button"
+                    aria-label={`${label} layer move`}
+                    onPointerDown={(event) => dragCustomLayer(event, layer)}
+                    onPointerMove={moveCustomLayer}
+                    onPointerUp={endCustomLayerDrag}
+                    onPointerCancel={endCustomLayerDrag}
+                    style={{
+                      ...getHotspotStyle(bounds),
+                      touchAction: "none",
+                    }}
+                    className={`absolute z-20 cursor-move rounded-sm border text-[10px] font-bold uppercase tracking-[0.12em] transition ${
+                      isSelected
+                        ? "border-[#5ABCF4] bg-main/10 text-[#1F8FC4]"
+                        : "border-transparent text-transparent hover:border-main hover:bg-main/10 hover:text-teal-700"
+                    }`}
+                  >
+                    {isSelected ? (
+                      <span className="absolute left-1 top-1 max-w-full truncate rounded bg-white/90 px-1.5 py-0.5 shadow-sm">
+                        {label}
                       </span>
                     ) : null}
                   </button>

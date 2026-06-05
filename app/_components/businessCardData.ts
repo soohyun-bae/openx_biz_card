@@ -143,6 +143,10 @@ export const logoPresets: LogoPreset[] = [
     src: "/logos/hellobell-logo.png",
   },
   {
+    id: "customTemplate",
+    name: "Custom Template",
+  },
+  {
     id: "custom",
     name: "직접 업로드",
   },

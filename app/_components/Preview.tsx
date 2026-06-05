@@ -18,6 +18,9 @@ import type {
   CardContentKey,
   CardContentVisibility,
   CardData,
+  CustomImageLayer,
+  CustomLayer,
+  CustomTextLayer,
   FieldKey,
   FontStyle,
   LogoPresetId,
@@ -26,10 +29,14 @@ import type {
 } from "./businessCardTypes";
 
 type OpenxFontStyleKey = Exclude<OpenxEditablePart, "logo">;
+type CustomLayerPatch = Partial<CustomTextLayer> | Partial<CustomImageLayer>;
 type EditorStep = "select" | "edit";
 
 const defaultEmails = [initialData.email, kcstEmail];
 const defaultWebsites = [initialData.website, kcstWebsite, hellobellWebsite];
+
+const createLayerId = () =>
+  crypto.randomUUID?.() ?? `layer-${Date.now()}-${Math.random()}`;
 
 const getDefaultStyle = (presetId: LogoPresetId): OpenxCardStyle => {
   if (presetId === "hellobell") {
@@ -85,8 +92,13 @@ export default function Preview() {
     useState<OpenxCardStyle>(openxDefaultStyle);
   const [selectedOpenxPart, setSelectedOpenxPart] =
     useState<OpenxEditablePart>("name");
+  const [customLayers, setCustomLayers] = useState<CustomLayer[]>([]);
+  const [selectedCustomLayerId, setSelectedCustomLayerId] = useState<
+    string | null
+  >(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const isSelectStep = step === "select";
+  const isCustomTemplate = selectedLogoPreset === "customTemplate";
   const previewData = useMemo<CardData>(
     () =>
       isSelectStep
@@ -134,9 +146,16 @@ export default function Preview() {
         openx: openxStyle,
         content: requiredVisibility,
         logoPreset: selectedLogoPreset,
+        customLayers,
       },
     );
-  }, [openxStyle, previewData, requiredVisibility, selectedLogoPreset]);
+  }, [
+    customLayers,
+    openxStyle,
+    previewData,
+    requiredVisibility,
+    selectedLogoPreset,
+  ]);
 
   const updateField = (field: FieldKey, value: string) => {
     setData((current) => ({
@@ -184,6 +203,24 @@ export default function Preview() {
           weight: 400,
         },
       }));
+    }
+
+    if (presetId === "customTemplate" && customLayers.length === 0) {
+      const firstLayer: CustomTextLayer = {
+        id: createLayerId(),
+        type: "text",
+        text: "텍스트를 입력하세요",
+        x: cardSize.width / 2,
+        y: cardSize.height / 2,
+        size: 42,
+        weight: 500,
+        letterSpacing: 0,
+        color: openxStyle.primaryColor,
+        align: "center",
+      };
+
+      setCustomLayers([firstLayer]);
+      setSelectedCustomLayerId(firstLayer.id);
     }
 
     setData((current) => {
@@ -248,6 +285,92 @@ export default function Preview() {
     }));
   };
 
+  const updateBackgroundColor = (color: string) => {
+    setOpenxStyle((current) => ({
+      ...current,
+      backgroundColor: color,
+    }));
+  };
+
+  const addCustomTextLayer = () => {
+    const layer: CustomTextLayer = {
+      id: createLayerId(),
+      type: "text",
+      text: "새 텍스트",
+      x: cardSize.width / 2,
+      y: cardSize.height / 2,
+      size: 36,
+      weight: 400,
+      letterSpacing: 0,
+      color: openxStyle.primaryColor,
+      align: "center",
+    };
+
+    setCustomLayers((current) => [...current, layer]);
+    setSelectedCustomLayerId(layer.id);
+  };
+
+  const addCustomImageLayer = (file: File | undefined) => {
+    if (!file) {
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      const layer: CustomImageLayer = {
+        id: createLayerId(),
+        type: "image",
+        src: String(reader.result ?? ""),
+        x: 120,
+        y: 120,
+        width: 240,
+        height: 160,
+        opacity: 1,
+      };
+
+      setCustomLayers((current) => [...current, layer]);
+      setSelectedCustomLayerId(layer.id);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const updateCustomLayer = (id: string, patch: CustomLayerPatch) => {
+    setCustomLayers((current) =>
+      current.map((layer) =>
+        layer.id === id ? ({ ...layer, ...patch } as CustomLayer) : layer,
+      ),
+    );
+  };
+
+  const deleteCustomLayer = (id: string) => {
+    setCustomLayers((current) => {
+      const next = current.filter((layer) => layer.id !== id);
+
+      setSelectedCustomLayerId((selectedId) =>
+        selectedId === id ? (next.at(-1)?.id ?? null) : selectedId,
+      );
+
+      return next;
+    });
+  };
+
+  const moveCustomLayer = (id: string, direction: -1 | 1) => {
+    setCustomLayers((current) => {
+      const index = current.findIndex((layer) => layer.id === id);
+      const nextIndex = index + direction;
+
+      if (index < 0 || nextIndex < 0 || nextIndex >= current.length) {
+        return current;
+      }
+
+      const next = [...current];
+      const [layer] = next.splice(index, 1);
+      next.splice(nextIndex, 0, layer);
+
+      return next;
+    });
+  };
+
   const savePng = async () => {
     const exportScale = 4;
     const canvas = document.createElement("canvas");
@@ -263,10 +386,13 @@ export default function Preview() {
       openx: openxStyle,
       content: requiredVisibility,
       logoPreset: selectedLogoPreset,
+      customLayers,
     });
 
     const link = document.createElement("a");
-    link.download = `${data.name || "business-card"}-openx.png`;
+    link.download = isCustomTemplate
+      ? "custom-template-openx.png"
+      : `${data.name || "business-card"}-openx.png`;
     link.href = canvas.toDataURL("image/png");
     link.click();
   };
@@ -299,7 +425,12 @@ export default function Preview() {
             selectedLogoPreset={selectedLogoPreset}
             selectedOpenxPart={selectedOpenxPart}
             onSelectOpenxPart={setSelectedOpenxPart}
-            canEditStyle={!isSelectStep}
+            canEditStyle={!isSelectStep && !isCustomTemplate}
+            canEditCustomTemplate={!isSelectStep && isCustomTemplate}
+            customLayers={customLayers}
+            selectedCustomLayerId={selectedCustomLayerId}
+            onSelectCustomLayer={setSelectedCustomLayerId}
+            onUpdateCustomLayer={updateCustomLayer}
             canSave={false}
           />
 
@@ -348,12 +479,21 @@ export default function Preview() {
                   selectedLogoPreset={selectedLogoPreset}
                   style={openxStyle}
                   selectedOpenxPart={selectedOpenxPart}
+                  customLayers={customLayers}
+                  selectedCustomLayerId={selectedCustomLayerId}
                   onUpdateField={updateField}
                   onUpdateFont={updateOpenxFont}
                   onResetFont={resetOpenxFont}
                   onUpdateLogoSize={updateLogoSize}
                   onUpdateLogoOffsetY={updateLogoOffsetY}
                   onResetLogoSize={resetLogoSize}
+                  onSelectCustomLayer={setSelectedCustomLayerId}
+                  onAddCustomTextLayer={addCustomTextLayer}
+                  onAddCustomImageLayer={addCustomImageLayer}
+                  onUpdateCustomLayer={updateCustomLayer}
+                  onDeleteCustomLayer={deleteCustomLayer}
+                  onMoveCustomLayer={moveCustomLayer}
+                  onUpdateBackgroundColor={updateBackgroundColor}
                   onBackToContentSelect={() => setStep("select")}
                   onSavePng={savePng}
                 />

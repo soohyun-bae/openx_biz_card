@@ -26,9 +26,14 @@ export type CardContentKey =
 
 export type CardContentVisibility = Record<CardContentKey, boolean>;
 
-export type LogoPresetId = "openx" | "kcst" | "hellobell" | "custom";
+export type LogoPresetId =
+  | "openx"
+  | "kcst"
+  | "hellobell"
+  | "custom"
+  | "customTemplate";
 
-export type CardTemplateId = "openx" | "kcst";
+export type CardTemplateId = "openx" | "kcst" | "custom";
 
 export type LogoPreset = {
   id: LogoPresetId;
@@ -79,3 +84,31 @@ export type OpenxEditablePart =
   | "email"
   | "website"
   | "address";
+
+export type CustomTextAlign = "left" | "center" | "right";
+
+export type CustomTextLayer = {
+  id: string;
+  type: "text";
+  text: string;
+  x: number;
+  y: number;
+  size: number;
+  weight: number;
+  letterSpacing: number;
+  color: string;
+  align: CustomTextAlign;
+};
+
+export type CustomImageLayer = {
+  id: string;
+  type: "image";
+  src: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  opacity: number;
+};
+
+export type CustomLayer = CustomTextLayer | CustomImageLayer;
