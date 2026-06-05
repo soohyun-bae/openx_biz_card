@@ -84,9 +84,9 @@ export const CardFieldsForm = ({
   };
 
   return (
-    <div className="flex min-h-0 flex-col rounded-[30px] border border-slate-200 bg-white p-5 shadow-sm lg:flex-1 lg:overflow-hidden">
+    <div className="flex min-h-0 flex-col rounded-[24px] border border-slate-200 bg-white p-4 shadow-sm sm:rounded-[30px] sm:p-5 xl:flex-1 xl:overflow-hidden">
       <div className="flex min-h-0 flex-1 flex-col justify-between gap-5 overflow-y-auto">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {editableFields.map((field) =>
             visibility[field] ? (
               <label key={field} className="grid gap-1.5">
@@ -96,14 +96,14 @@ export const CardFieldsForm = ({
                 <input
                   value={data[field]}
                   onChange={(event) => onUpdateField(field, event.target.value)}
-                  className="h-11 rounded-md border border-slate-300 px-3 text-base outline-none transition focus:border-main focus:ring-2 focus:ring-teal-100"
+                  className="h-11 min-w-0 rounded-md border border-slate-300 px-3 text-base outline-none transition focus:border-main focus:ring-2 focus:ring-teal-100"
                 />
               </label>
             ) : null,
           )}
 
           {visibility.logo && selectedLogoPreset === "custom" ? (
-            <label className="grid gap-1.5">
+            <label className="grid min-w-0 gap-1.5">
               <span className="text-sm font-semibold text-main">
                 {fieldLabels.logo}
               </span>
@@ -114,7 +114,7 @@ export const CardFieldsForm = ({
                     type="file"
                     accept="image/*"
                     onChange={(event) => updateLogo(event.target.files?.[0])}
-                    className="block w-full rounded-md border border-slate-300 pr-11 text-sm text-slate-700 file:mr-3 file:h-11 file:border-0 file:bg-slate-950 file:px-4 file:font-bold file:text-white hover:file:bg-main"
+                    className="block w-full min-w-0 rounded-md border border-slate-300 pr-11 text-sm text-slate-700 file:mr-3 file:h-11 file:border-0 file:bg-slate-950 file:px-4 file:font-bold file:text-white hover:file:bg-main"
                   />
                   {data.logo ? (
                     <button

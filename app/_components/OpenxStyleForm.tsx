@@ -54,7 +54,7 @@ const NumberInput = ({
   step = 1,
   onChange,
 }: NumberInputProps) => (
-  <label className="flex min-w-[120px] flex-1 items-center gap-2">
+  <label className="flex w-full min-w-0 flex-1 items-center gap-2 sm:min-w-[120px]">
     <span className="shrink-0 text-sm font-bold text-main">{label}</span>
     <input
       type="number"
@@ -147,11 +147,11 @@ export const OpenxStyleForm = ({
   return (
     <div className="grid gap-3 rounded-lg bg-white">
       <h2 className="text-lg font-bold text-main">스타일 변경</h2>
-      <div className="flex items-center justify-between gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="min-w-0 text-sm text-slate-600">
           명함 위 요소를 클릭하면 해당 스타일만 바로 수정할 수 있습니다.
         </p>
-        <span className="shrink-0 rounded-[50px] bg-[#F1F5F9] px-3 py-1 text-sm font-bold text-main">
+        <span className="w-fit shrink-0 rounded-[50px] bg-[#F1F5F9] px-3 py-1 text-sm font-bold text-main">
           {partLabels[selectedPart]}
         </span>
       </div>
@@ -160,7 +160,7 @@ export const OpenxStyleForm = ({
         <button
           type="button"
           onClick={resetSelectedStyle}
-          className="h-10 shrink-0 rounded-md border border-slate-300 px-4 text-sm font-bold text-slate-700 transition hover:border-main hover:text-main"
+          className="h-10 w-full shrink-0 rounded-md border border-slate-300 px-4 text-sm font-bold text-slate-700 transition hover:border-main hover:text-main sm:w-auto"
         >
           기본값으로 돌아가기
         </button>

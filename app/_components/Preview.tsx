@@ -274,8 +274,8 @@ export default function Preview() {
   return (
     <main className="min-h-screen bg-[#f4f7fb] text-slate-950">
       <header className="w-full rounded-b-[30px] border-b border-slate-200 bg-white py-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
-        <div className="mx-auto w-full max-w-[1621px] px-5 sm:px-8 lg:px-10">
-          <div className="grid justify-center gap-6 lg:grid-cols-[minmax(0,866px)_minmax(0,703px)]">
+        <div className="mx-auto w-full max-w-[1621px] px-4 sm:px-8 xl:px-10">
+          <div className="grid justify-center gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)]">
             <div className="flex w-full max-w-[866px] flex-col gap-2">
               <p className="text-sm uppercase tracking-[0.16em] text-main">
                 Business Card Maker
@@ -288,8 +288,8 @@ export default function Preview() {
         </div>
       </header>
 
-      <div className="mx-auto flex w-full max-w-[1621px] flex-col gap-6 px-5 py-6 sm:px-8 lg:px-10">
-        <section className="grid justify-center gap-6 lg:grid-cols-[minmax(0,866px)_minmax(0,703px)]">
+      <div className="mx-auto flex w-full max-w-[1621px] flex-col gap-5 px-4 py-5 sm:gap-6 sm:px-8 sm:py-6 xl:px-10">
+        <section className="grid justify-center gap-5 sm:gap-6 xl:grid-cols-[minmax(0,1.08fr)_minmax(320px,0.92fr)]">
           <CardPreviewPanel
             canvasRef={canvasRef}
             onSavePng={savePng}
@@ -303,8 +303,8 @@ export default function Preview() {
             canSave={false}
           />
 
-          <div className="flex w-full max-w-[703px] flex-col gap-[20px] lg:h-[var(--editor-panel-height)] lg:overflow-hidden">
-            <div className="rounded-[50px] border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex w-full min-w-0 max-w-[703px] flex-col gap-[20px] xl:h-[var(--editor-panel-height)] xl:overflow-hidden">
+            <div className="rounded-[28px] border border-slate-200 bg-white p-3 shadow-sm sm:rounded-[50px] sm:p-4">
               <div className="flex items-center rounded-[50px]">
                 <button
                   type="button"
@@ -312,7 +312,7 @@ export default function Preview() {
                   className={`relative h-14 flex-1 rounded-[50px] text-sm font-bold transition ${
                     isSelectStep
                       ? "z-20 bg-main text-white"
-                      : "z-10 -mr-10 bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      : "z-10 -mr-4 bg-slate-100 text-slate-600 hover:bg-slate-200 sm:-mr-10"
                   }`}
                 >
                   1. 내용 선택
@@ -323,7 +323,7 @@ export default function Preview() {
                   className={`relative h-14 flex-1 rounded-[50px] text-sm font-bold transition ${
                     !isSelectStep
                       ? "z-20 bg-main text-white"
-                      : "z-10 -ml-10 bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      : "z-10 -ml-4 bg-slate-100 text-slate-600 hover:bg-slate-200 sm:-ml-10"
                   }`}
                 >
                   2. 내용 수정

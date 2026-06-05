@@ -538,7 +538,7 @@ export const CardPreviewPanel = ({
   };
 
   return (
-    <section className="flex w-full max-w-[866px] min-w-0 flex-col gap-4 rounded-[30px] border border-slate-200 bg-white p-4 shadow-sm sm:p-6 lg:h-[var(--editor-panel-height)]">
+    <section className="flex w-full max-w-[866px] min-w-0 flex-col gap-4 rounded-[24px] border border-slate-200 bg-white p-3 shadow-sm sm:rounded-[30px] sm:p-6 xl:h-[var(--editor-panel-height)]">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-lg font-bold text-sub">실시간 미리보기</h2>
@@ -552,15 +552,15 @@ export const CardPreviewPanel = ({
           <button
             type="button"
             onClick={onSavePng}
-            className="h-11 rounded-md bg-slate-950 px-5 font-bold text-white transition hover:bg-main"
+            className="h-11 w-full rounded-md bg-slate-950 px-5 font-bold text-white transition hover:bg-main sm:w-auto"
           >
             PNG 저장
           </button>
         ) : null}
       </div>
 
-      <div className="flex flex-1 items-center justify-center overflow-auto rounded-md bg-slate-100 p-4 sm:p-8">
-        <div className="relative max-w-full">
+      <div className="flex flex-1 items-center justify-center overflow-auto rounded-md bg-slate-100 p-2 sm:p-6 xl:p-8">
+        <div className="relative w-fit max-w-full">
           <canvas
             ref={canvasRef}
             aria-label="명함 미리보기"
