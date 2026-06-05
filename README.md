@@ -16,9 +16,9 @@ OPENX 명함을 브라우저에서 미리 보고 편집한 뒤 PNG로 저장하�
 ## 기술 스택
 
 - ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=Next.js&logoColor=white) 16.2.6 App Router
-- React 19.2.4
-- TypeScript
-- Tailwind CSS 4
+- ![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=React&logoColor=white) 19.2.4
+- ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=TypeScript&logoColor=white)
+- ![Tailwind v4](https://img.shields.io/badge/Tailwind%20v4-06B6D4?style=for-the-badge&logo=Tailwind%20v4&logoColor=white)
 - HTML Canvas 기반 명함 렌더링
 
 ## 실행 방법
