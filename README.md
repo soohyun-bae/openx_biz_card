@@ -1,6 +1,7 @@
 # openx_biz_card
 
-OPENX 명함을 브라우저에서 미리 보고 편집한 뒤 PNG로 저장하는 Next.js 프로젝트입니다. 명함에 들어갈 로고, 이름/영어이름/직급, 전화번호/이메일/팩스/사이트주소/주소 텍스트의 글자/로고 크기와 굵기, 자간, 로고 위치를 화면에서 조정할 수 있습니다.
+명함을 브라우저에서 미리 보고 편집한 뒤 PNG로 저장하는 Next.js 프로젝트입니다. 
+명함에 들어갈 로고, 이름/영어이름/직급, 전화번호/이메일/팩스/사이트주소/주소 텍스트의 글자/로고 크기와 굵기, 자간, 로고 위치를 화면에서 조정할 수 있습니다.
 
 | ![이미지1](https://github.com/user-attachments/assets/2692d695-fe73-4d28-a834-77d01a0e2564) | ![이미지2](https://github.com/user-attachments/assets/5478825b-6a05-4307-a1a3-f70e192fb88a) |
 |--------------------------|--------------------------|
@@ -18,7 +19,7 @@ OPENX 명함을 브라우저에서 미리 보고 편집한 뒤 PNG로 저장하�
 - ![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=Next.js&logoColor=white) 16.2.6 App Router
 - ![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=React&logoColor=white) 19.2.4
 - ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=TypeScript&logoColor=white)
-- ![Tailwind](https://img.shields.io/badge/Tailwind%20v4-06B6D4?style=for-the-badge&logo=Tailwind&logoColor=white)
+- ![Tailwind](https://img.shields.io/badge/Tailwind%20v4-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white)
 - HTML Canvas 기반 명함 렌더링
 
 ## 실행 방법
