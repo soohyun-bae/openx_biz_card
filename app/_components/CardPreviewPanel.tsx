@@ -237,8 +237,10 @@ const getContainedImageBounds = (
   y: number,
   maxWidth: number,
   maxHeight: number,
+  allowUpscale = false,
 ): Bounds => {
-  const ratio = Math.min(1, maxWidth / image.width, maxHeight / image.height);
+  const fitRatio = Math.min(maxWidth / image.width, maxHeight / image.height);
+  const ratio = allowUpscale ? fitRatio : Math.min(1, fitRatio);
   const drawWidth = image.width * ratio;
   const drawHeight = image.height * ratio;
   const drawX = x + (maxWidth - drawWidth) / 2;
@@ -408,6 +410,7 @@ const buildHotspots = (
           logoY,
           style.logoSize,
           style.logoSize,
+          true,
         )
       : {
           x: logoX,

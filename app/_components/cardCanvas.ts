@@ -181,8 +181,10 @@ const drawImageNatural = (
   centerY: number,
   maxWidth: number,
   maxHeight: number,
+  allowUpscale = false,
 ) => {
-  const ratio = Math.min(1, maxWidth / image.width, maxHeight / image.height);
+  const fitRatio = Math.min(maxWidth / image.width, maxHeight / image.height);
+  const ratio = allowUpscale ? fitRatio : Math.min(1, fitRatio);
   const drawWidth = image.width * ratio;
   const drawHeight = image.height * ratio;
 
@@ -230,11 +232,20 @@ const drawLogoBox = (
   size: number,
   background: string,
   color: string,
+  allowUpscale = false,
 ) => {
   context.save();
 
   if (image) {
-    drawImageNatural(context, image, x + size / 2, y + size / 2, size, size);
+    drawImageNatural(
+      context,
+      image,
+      x + size / 2,
+      y + size / 2,
+      size,
+      size,
+      allowUpscale,
+    );
   } else {
     context.fillStyle = background;
     context.fillRect(x, y, size, size);
@@ -381,6 +392,7 @@ const drawOpenxLogo = (
       logoSize,
       style.logoBackground,
       style.logoColor,
+      logoPreset === "custom",
     );
     return;
   }
